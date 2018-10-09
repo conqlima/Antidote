@@ -136,7 +136,8 @@ void agent_init(ContextId id, CommunicationPlugin **plugins, int config,
 	configuration.event_report_cb = event_report_cb;
 	configuration.mds_data_cb = mds_data_cb;
 	
-	while (*plugins) {
+	//while (*plugins) {
+	if (*plugins) {
 		(*plugins)->type |= AGENT_CONTEXT;
 		communication_add_plugin(id, *plugins);
 		++plugins;
@@ -184,17 +185,20 @@ void agent_finalize(ContextId id)
  * @param listener the listen to be added.
  * @return 1 if operation succeeds, 0 if not.
  */
-int agent_add_listener(AgentListener listener)
+int agent_add_listener(ContextId id, AgentListener listener)
 {
 
 	// test if there is not elements in the list
-	if (agent_listener_count == 0) {
+	unsigned int size = agent_listener_count;
+if (size == 0) {
 		agent_listener_list = malloc(sizeof(struct AgentListener));
 
-	} else { // change the list size
+	} 
+	if (size < id.plugin) { // change the list size
 		agent_listener_list = realloc(agent_listener_list,
 						sizeof(struct AgentListener)
-						* (agent_listener_count + 1));
+						* (id.plugin + 1));
+	agent_listener_count = id.plugin;
 	}
 
 	// add element to list
@@ -203,9 +207,9 @@ int agent_add_listener(AgentListener listener)
 		return 0;
 	}
 
-	agent_listener_list[agent_listener_count] = listener;
+	agent_listener_list[id.plugin] = listener;
 
-	agent_listener_count++;
+	//agent_listener_count++;
 
 	return 1;
 
@@ -237,16 +241,16 @@ void agent_remove_all_listeners()
 int agent_notify_evt_device_associated(Context *ctx)
 {
 	int ret_val = 0;
-	int i;
+	//int i;
 
-	for (i = 0; i < agent_listener_count; i++) {
-		AgentListener *l = &agent_listener_list[i];
+	//for (i = 0; i < agent_listener_count; i++) {
+		AgentListener *l = &agent_listener_list[ctx->id.plugin];
 
 		if (l != NULL && l->device_associated != NULL) {
 			(l->device_associated)(ctx);
 			ret_val = 1;
 		}
-	}
+	//}
 
 	return ret_val;
 }
@@ -263,16 +267,16 @@ int agent_notify_evt_device_associated(Context *ctx)
 int agent_notify_evt_device_connected(Context *ctx, const char *addr)
 {
 	int ret_val = 0;
-	int i;
+	//int i;
 
-	for (i = 0; i < agent_listener_count; i++) {
-		AgentListener *l = &agent_listener_list[i];
+	//for (i = 0; i < agent_listener_count; i++) {
+		AgentListener *l = &agent_listener_list[ctx->id.plugin];
 
 		if (l != NULL && l->device_connected != NULL) {
 			(l->device_connected)(ctx, addr);
 			ret_val = 1;
 		}
-	}
+	//}
 
 	return ret_val;
 }
@@ -289,16 +293,16 @@ int agent_notify_evt_device_connected(Context *ctx, const char *addr)
 int agent_notify_evt_device_disconnected(Context *ctx, const char *addr)
 {
 	int ret_val = 0;
-	int i;
+	//int i;
 
-	for (i = 0; i < agent_listener_count; i++) {
-		AgentListener *l = &agent_listener_list[i];
+	//for (i = 0; i < agent_listener_count; i++) {
+		AgentListener *l = &agent_listener_list[ctx->id.plugin];
 
 		if (l != NULL && l->device_disconnected != NULL) {
 			(l->device_disconnected)(ctx, addr);
 			ret_val = 1;
 		}
-	}
+	//}
 
 	return ret_val;
 }
@@ -314,16 +318,16 @@ int agent_notify_evt_device_disconnected(Context *ctx, const char *addr)
 int agent_notify_evt_device_unavailable(Context *ctx)
 {
 	int ret_val = 0;
-	int i;
+	//int i;
 
-	for (i = 0; i < agent_listener_count; i++) {
-		AgentListener *l = &agent_listener_list[i];
+	//for (i = 0; i < agent_listener_count; i++) {
+		AgentListener *l = &agent_listener_list[ctx->id.plugin];
 
 		if (l != NULL && l->device_unavailable != NULL) {
 			(l->device_unavailable)(ctx);
 			ret_val = 1;
 		}
-	}
+	//}
 
 	return ret_val;
 }
@@ -340,16 +344,16 @@ int agent_notify_evt_device_unavailable(Context *ctx)
 int agent_notify_evt_timeout(Context *ctx)
 {
 	int ret_val = 0;
-	int i;
+	//int i;
 
-	for (i = 0; i < agent_listener_count; i++) {
-		AgentListener *l = &agent_listener_list[i];
+	//for (i = 0; i < agent_listener_count; i++) {
+		AgentListener *l = &agent_listener_list[ctx->id.plugin];
 
 		if (l != NULL && l->timeout != NULL) {
 			(l->timeout)(ctx);
 			ret_val = 1;
 		}
-	}
+	//}
 
 	return ret_val;
 }

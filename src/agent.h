@@ -85,7 +85,7 @@ void agent_stop(ContextId id);
 
 void agent_connection_loop(ContextId context_id);
 
-int agent_add_listener(AgentListener listener);
+int agent_add_listener(ContextId id, AgentListener listener);
 
 void agent_associate(ContextId id);
 

@@ -161,7 +161,8 @@ void manager_init(ContextId id, CommunicationPlugin **plugins)
 {
 	DEBUG("Manager Initialization");
 
-	while (*plugins) {
+	//while (*plugins) {
+	if (*plugins) {
 		(*plugins)->type |= MANAGER_CONTEXT;
 		communication_add_plugin(id, (*plugins));
 		++plugins;
@@ -216,17 +217,21 @@ void manager_finalize(ContextId id)
  * @param listener the listener to be added.
  * @return 1 if operation succeeds, 0 if not.
  */
-int manager_add_listener(ManagerListener listener)
+int manager_add_listener(ContextId id, ManagerListener listener)
 {
 
 	// test if there is not elements in the list
-	if (manager_listener_count == 0) {
+	unsigned int size = manager_listener_count;
+	if (size == 0) {
 		manager_listener_list = malloc(sizeof(struct ManagerListener));
 
-	} else { // change the list size
+	}
+	// change the list size
+	if (size < id.plugin) { 
 		manager_listener_list = realloc(manager_listener_list,
 						sizeof(struct ManagerListener)
-						* (manager_listener_count + 1));
+						* (id.plugin + 1));
+		manager_listener_count = id.plugin;
 	}
 
 	// add element to list
@@ -235,9 +240,9 @@ int manager_add_listener(ManagerListener listener)
 		return 0;
 	}
 
-	manager_listener_list[manager_listener_count] = listener;
+	manager_listener_list[id.plugin] = listener;
 
-	manager_listener_count++;
+	//manager_listener_count++;
 
 	return 1;
 
@@ -270,16 +275,16 @@ void manager_remove_all_listeners()
 int manager_notify_evt_device_available(Context *ctx, DataList *data_list)
 {
 	int ret_val = 0;
-	int i;
+	//int i;
 
-	for (i = 0; i < manager_listener_count; i++) {
-		ManagerListener *l = &manager_listener_list[i];
+	//for (i = 0; i < manager_listener_count; i++) {
+		ManagerListener *l = &manager_listener_list[ctx->id.plugin];
 
 		if (l != NULL && l->device_available != NULL) {
 			(l->device_available)(ctx, data_list);
 			ret_val = 1;
 		}
-	}
+	//}
 
 	data_list_del(data_list);
 	return ret_val;
@@ -296,16 +301,16 @@ int manager_notify_evt_device_available(Context *ctx, DataList *data_list)
 int manager_notify_evt_device_unavailable(Context *ctx)
 {
 	int ret_val = 0;
-	int i;
+	//int i;
 
-	for (i = 0; i < manager_listener_count; i++) {
-		ManagerListener *l = &manager_listener_list[i];
+	//for (i = 0; i < manager_listener_count; i++) {
+		ManagerListener *l = &manager_listener_list[ctx->id.plugin];
 
 		if (l != NULL && l->device_unavailable != NULL) {
 			(l->device_unavailable)(ctx);
 			ret_val = 1;
 		}
-	}
+	//}
 
 	return ret_val;
 }
@@ -322,16 +327,16 @@ int manager_notify_evt_device_unavailable(Context *ctx)
 int manager_notify_evt_device_connected(Context *ctx, const char *addr)
 {
 	int ret_val = 0;
-	int i;
+	//int i;
 
-	for (i = 0; i < manager_listener_count; i++) {
-		ManagerListener *l = &manager_listener_list[i];
+	//for (i = 0; i < manager_listener_count; i++) {
+		ManagerListener *l = &manager_listener_list[ctx->id.plugin];
 
 		if (l != NULL && l->device_connected != NULL) {
 			(l->device_connected)(ctx, addr);
 			ret_val = 1;
 		}
-	}
+	//}
 
 	return ret_val;
 }
@@ -348,16 +353,16 @@ int manager_notify_evt_device_connected(Context *ctx, const char *addr)
 int manager_notify_evt_device_disconnected(Context *ctx, const char *addr)
 {
 	int ret_val = 0;
-	int i;
+	//int i;
 
-	for (i = 0; i < manager_listener_count; i++) {
-		ManagerListener *l = &manager_listener_list[i];
+	//for (i = 0; i < manager_listener_count; i++) {
+		ManagerListener *l = &manager_listener_list[ctx->id.plugin];
 
 		if (l != NULL && l->device_disconnected != NULL) {
 			(l->device_disconnected)(ctx, addr);
 			ret_val = 1;
 		}
-	}
+	//}
 
 	return ret_val;
 }
@@ -374,16 +379,16 @@ int manager_notify_evt_device_disconnected(Context *ctx, const char *addr)
 int manager_notify_evt_measurement_data_updated(Context *ctx, DataList *data_list)
 {
 	int ret_val = 0;
-	int i;
+	//int i;
 
-	for (i = 0; i < manager_listener_count; i++) {
-		ManagerListener *l = &manager_listener_list[i];
+	//for (i = 0; i < manager_listener_count; i++) {
+		ManagerListener *l = &manager_listener_list[ctx->id.plugin];
 
 		if (l != NULL && l->measurement_data_updated != NULL) {
 			(l->measurement_data_updated)(ctx, data_list);
 			ret_val = 1;
 		}
-	}
+	//}
 
 	data_list_del(data_list);
 	return ret_val;
@@ -405,16 +410,16 @@ int manager_notify_evt_segment_data(Context *ctx, int handle, int instnumber,
 							DataList *data_list)
 {
 	int ret_val = 0;
-	int i;
+	//int i;
 
-	for (i = 0; i < manager_listener_count; i++) {
-		ManagerListener *l = &manager_listener_list[i];
+	//for (i = 0; i < manager_listener_count; i++) {
+		ManagerListener *l = &manager_listener_list[ctx->id.plugin];
 
 		if (l && l->segment_data_received) {
 			(l->segment_data_received)(ctx, handle, instnumber, data_list);
 			ret_val = 1;
 		}
-	}
+	//}
 
 	// Since encoding this may take a lot of time, we pass ownership to
 	// listeners. If there is more than one in app, it must make a deep

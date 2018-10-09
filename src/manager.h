@@ -94,7 +94,7 @@ void manager_stop(ContextId id);
 
 void manager_connection_loop(ContextId context_id);
 
-int manager_add_listener(ManagerListener listener);
+int manager_add_listener(ContextId id, ManagerListener listener);
 
 DataList *manager_get_mds_attributes(ContextId id);
 
