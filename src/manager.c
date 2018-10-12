@@ -202,9 +202,9 @@ void manager_finalize(ContextId id)
 {
 	DEBUG("Manager Finalization");
 
-	manager_remove_all_listeners();
-	ext_configurations_destroy();
-	std_configurations_destroy();
+	//manager_remove_all_listeners();
+	//ext_configurations_destroy();
+	//std_configurations_destroy();
 	communication_finalize(id);
 }
 
