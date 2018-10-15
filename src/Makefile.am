@@ -63,4 +63,9 @@ pkgconfig_DATA = antidote.pc
                                    communication/plugin/plugin_tcp.h \
                                    communication/plugin/plugin_tcp_agent.h
 @PACKAGE@_include_utildir = $(pkgincludedir)/util
-@PACKAGE@_include_util_HEADERS = util/bytelib.h
+@PACKAGE@_include_util_HEADERS = util/bytelib.h \
+				util/dateutil.h \
+				util/ioutil.h \
+				util/linkedlist.h \
+				util/log.h \
+				util/strbuff.h

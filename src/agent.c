@@ -173,7 +173,7 @@ void agent_finalize(ContextId id)
 
 	//agent_remove_all_listeners();
 	//std_configurations_destroy();
-	communication_finalize(id);
+	//communication_finalize(id);
 }
 
 

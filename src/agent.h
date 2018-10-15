@@ -95,4 +95,6 @@ void agent_disconnect(ContextId id);
 
 void agent_send_data(ContextId id);
 
+void agent_remove_all_listeners();
+
 #endif /* AGENT_H_ */

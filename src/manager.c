@@ -101,6 +101,7 @@
 #include "src/specializations/glucometer.h"
 #include "src/util/log.h"
 #include "src/util/dateutil.h"
+#include "src/agent.h"
 
 
 /**
@@ -202,9 +203,16 @@ void manager_finalize(ContextId id)
 {
 	DEBUG("Manager Finalization");
 
-	//manager_remove_all_listeners();
-	//ext_configurations_destroy();
-	//std_configurations_destroy();
+	manager_remove_all_listeners();
+	
+	/*Essa função deveria ser chamada apenas no arquivo
+	 * agent.c, mas foi colocada aqui para ser chamada
+	 * apenas uma vez. No arquivo agent.c ela seria chamada
+	 * várias vezes, ocasionando erro de memória*/
+	agent_remove_all_listeners();
+	
+	ext_configurations_destroy();
+	std_configurations_destroy();
 	communication_finalize(id);
 }
 
@@ -867,7 +875,6 @@ Request *manager_set_time(ContextId id, time_t time, service_request_callback ca
  */
 void manager_handle_transition_evt(Context *ctx, fsm_states previous, fsm_states next)
 {
-	//mudar aqui get_and_lock_context(2, 0)
 	if (previous == fsm_state_operating && next != previous) {
 		DEBUG(" manager: Notify device unavailable.\n");
 		// Exiting operating state

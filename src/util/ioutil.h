@@ -32,7 +32,7 @@
 #define IOUTIL_H_
 
 #include <sys/types.h>
-#include "src/asn1/phd_types.h"
+#include <asn1/phd_types.h>
 
 intu8 *ioutil_buffer_from_file(const char *file_path,
 			       unsigned long *buffer_size);
