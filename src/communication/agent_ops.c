@@ -157,11 +157,12 @@ void communication_agent_roiv_action_respond_tx(FSMContext *ctx, fsm_events evt,
  */
 void communication_agent_send_event_tx(FSMContext *ctx, fsm_events evt, FSMEventData *evtdata)
 {
+	int nodeNumber = (ctx->id.plugin+1)/2;
 	APDU *apdu = calloc(sizeof(APDU), 1);
 	PRST_apdu prst;
 	DATA_apdu *data;
 
-	ConfigId spec = agent_configuration()->config;
+	ConfigId spec = agent_configuration(nodeNumber)->config;
 	struct StdConfiguration *cfg =
 		std_configurations_get_supported_standard(spec);
 	// TODO support extended configurations too for agent
@@ -171,7 +172,7 @@ void communication_agent_send_event_tx(FSMContext *ctx, fsm_events evt, FSMEvent
 		return;
 	}
 
-	void *evtreport = agent_configuration()->event_report_cb();
+	void *evtreport = agent_configuration(nodeNumber)->event_report_cb();
 	data = cfg->event_report(evtreport);
 	free(evtreport);
 
@@ -204,20 +205,20 @@ void communication_agent_send_event_tx(FSMContext *ctx, fsm_events evt, FSMEvent
 void association_agent_mds(FSMContext *ctx, fsm_events evt, FSMEventData *data)
 {
 	DEBUG("association_agent_mds");
-
+	int nodeNumber = (ctx->id.plugin+1)/2;
 	if (ctx->mds != NULL) {
 		mds_destroy(ctx->mds);
 	}
 
-	ConfigId spec = agent_configuration()->config;
+	ConfigId spec = agent_configuration(nodeNumber)->config;
 	ConfigObjectList *cfg = std_configurations_get_configuration_attributes(spec);
 
 	MDS *mds = mds_create();
 	ctx->mds = mds;
 
-	struct mds_system_data *mds_data = agent_configuration()->mds_data_cb();
+	struct mds_system_data *mds_data = agent_configuration(nodeNumber)->mds_data_cb();
 
-	mds->dev_configuration_id = agent_configuration()->config;
+	mds->dev_configuration_id = agent_configuration(nodeNumber)->config;
 	mds->data_req_mode_capab.data_req_mode_flags = DATA_REQ_SUPP_INIT_AGENT;
 	// max number of simultaneous sessions
 	mds->data_req_mode_capab.data_req_init_agent_count = 1;

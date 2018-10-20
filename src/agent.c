@@ -73,11 +73,11 @@ static int agent_listener_count = 0;
 /**
  * Agent configuration
  */
-static AgentConfiguration configuration;
+static AgentConfiguration configuration[6];
 
-AgentConfiguration *agent_configuration()
+AgentConfiguration *agent_configuration(int nodeNumber)
 {
-	return &configuration;
+	return &configuration[nodeNumber];
 }
 
 static void agent_handle_transition_evt(Context *ctx, fsm_states previous, fsm_states next);
@@ -131,10 +131,10 @@ void agent_init(ContextId id, CommunicationPlugin **plugins, int config,
 		struct mds_system_data *(*mds_data_cb)())
 {
 	DEBUG("Agent Initialization");
-
-	configuration.config = config;
-	configuration.event_report_cb = event_report_cb;
-	configuration.mds_data_cb = mds_data_cb;
+	int nodeNumber = (id.plugin+1)/2;
+	configuration[nodeNumber].config = config;
+	configuration[nodeNumber].event_report_cb = event_report_cb;
+	configuration[nodeNumber].mds_data_cb = mds_data_cb;
 	
 	//while (*plugins) {
 	if (*plugins) {
@@ -172,7 +172,7 @@ void agent_finalize(ContextId id)
 	DEBUG("Agent Finalization");
 
 	//agent_remove_all_listeners();
-	//std_configurations_destroy();
+	std_configurations_destroy();
 	//communication_finalize(id);
 }
 

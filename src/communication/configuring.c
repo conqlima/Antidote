@@ -683,6 +683,7 @@ void configuring_transition_waiting_for_config(Context *ctx, fsm_events evt,
 void configuring_send_config_tx(Context *ctx, fsm_events evt,
 					FSMEventData *event_data)
 {
+	int nodeNumber = (ctx->id.plugin+1)/2;
 	APDU *apdu = calloc(1, sizeof(APDU));
 	PRST_apdu prst;
 	DATA_apdu *data = calloc(1, sizeof(DATA_apdu));
@@ -693,7 +694,7 @@ void configuring_send_config_tx(Context *ctx, fsm_events evt,
 
 	ConfigObjectList *cfg =
 		std_configurations_get_configuration_attributes(
-				      		agent_configuration()->config);
+				      		agent_configuration(nodeNumber)->config);
 
 	data->invoke_id = 0; // filled by service_* call
 	data->message.choice = ROIV_CMIP_CONFIRMED_EVENT_REPORT_CHOSEN;
@@ -703,7 +704,7 @@ void configuring_send_config_tx(Context *ctx, fsm_events evt,
 	evtrep.event_type = MDC_NOTI_CONFIG;
 
 	cfgrep.config_obj_list = *cfg;
-	cfgrep.config_report_id = agent_configuration()->config;
+	cfgrep.config_report_id = agent_configuration(nodeNumber)->config;
 
 	// compensate for config_report
 	evtrep.event_info.length = cfg->length + 6; // 80 + 6 = 86 for oximeter

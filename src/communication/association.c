@@ -488,7 +488,7 @@ static void populate_aare(APDU *apdu, PhdAssociationInformation *response_info)
 }
 
 static void populate_aarq(APDU *apdu, PhdAssociationInformation *config_info,
-				DataProto *proto);
+				DataProto *proto, FSMContext *ctx);
 
 /**
  * Send apdu association request (normally, Agent does this)
@@ -505,7 +505,7 @@ void association_aarq_tx(FSMContext *ctx, fsm_events evt, FSMEventData *data)
 	DataProto proto;
 
 	memset(&config_info, 0, sizeof(PhdAssociationInformation));
-	populate_aarq(&config_apdu, &config_info, &proto);
+	populate_aarq(&config_apdu, &config_info, &proto, ctx);
 
 	// Encode APDU
 	ByteStreamWriter *encoded_value =
@@ -528,9 +528,10 @@ void association_aarq_tx(FSMContext *ctx, fsm_events evt, FSMEventData *data)
  * @param proto Data protocol to send
  */
 static void populate_aarq(APDU *apdu, PhdAssociationInformation *config_info,
-				DataProto *proto)
+				DataProto *proto, FSMContext *ctx)
 {
-	struct mds_system_data *mds_data = agent_configuration()->mds_data_cb();
+	int nodeNumber = (ctx->id.plugin+1)/2;
+	struct mds_system_data *mds_data = agent_configuration(nodeNumber)->mds_data_cb();
 
 	apdu->choice = AARQ_CHOSEN;
 	apdu->length = 50;
@@ -555,7 +556,7 @@ static void populate_aarq(APDU *apdu, PhdAssociationInformation *config_info,
 	memcpy(config_info->system_id.value, mds_data->system_id,
 					config_info->system_id.length);
 
-	config_info->dev_config_id = agent_configuration()->config;
+	config_info->dev_config_id = agent_configuration(nodeNumber)->config;
 
 	config_info->data_req_mode_capab.data_req_mode_flags = DATA_REQ_SUPP_INIT_AGENT;
 	// max number of simultaneous sessions
