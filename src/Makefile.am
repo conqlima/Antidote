@@ -62,6 +62,10 @@ pkgconfig_DATA = antidote.pc
 @PACKAGE@_include_plugin_HEADERS = communication/plugin/plugin.h \
                                    communication/plugin/plugin_tcp.h \
                                    communication/plugin/plugin_tcp_agent.h
+@PACKAGE@_include_parserdir = $(pkgincludedir)/communication/parser
+@PACKAGE@_include_parser_HEADERS = communication/parser/decoder_ASN1.h \
+                                   communication/parser/struct_cleaner.h \
+                                   communication/parser/encoder_ASN1.h
 @PACKAGE@_include_utildir = $(pkgincludedir)/util
 @PACKAGE@_include_util_HEADERS = util/bytelib.h \
 				util/dateutil.h \

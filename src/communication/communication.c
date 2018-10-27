@@ -274,7 +274,7 @@ int communication_force_disconnect(Context *ctx)
  */
 void communication_finalize(ContextId id)
 {
-	//unsigned int i;
+	unsigned int i;
 	DEBUG(" communication: Finalizing. ");
 
 	// Reset all timeouts
@@ -282,14 +282,15 @@ void communication_finalize(ContextId id)
 	// Finalizes all threads in execution
 
 	if (communication_is_network_started(id)) {
-		//for (i = 1; i <= plugin_count; ++i) {
-			CommunicationPlugin *comm_plugin = comm_plugins[id.plugin];
+		for (i = 1; i <= plugin_count; ++i) {
+			CommunicationPlugin *comm_plugin = comm_plugins[i];
+			network_status[i] = NETWORK_STATUS_NOT_INITIALIZED;
 			if (comm_plugin->network_finalize() != NETWORK_ERROR_NONE) {
-				DEBUG("Trouble finalizing plugin %d", id.plugin);
-			//}
+				DEBUG("Trouble finalizing plugin %d", i);
+			}
 		}
+			//network_status[id.plugin] = NETWORK_STATUS_NOT_INITIALIZED;
 
-		network_status[id.plugin] = NETWORK_STATUS_NOT_INITIALIZED;
 
 		context_iterate(&communication_fire_transport_disconnect_evt);
 	}
@@ -298,11 +299,11 @@ void communication_finalize(ContextId id)
 	communication_remove_connection_listeners();
 	context_remove_all();
 
-	//for (i = 1; i <= plugin_count; ++i) {
-		CommunicationPlugin *comm_plugin = comm_plugins[id.plugin];
+	for (i = 1; i <= plugin_count; ++i) {
+		CommunicationPlugin *comm_plugin = comm_plugins[i];
 		communication_plugin_clear(comm_plugin);
-		comm_plugins[id.plugin] = NULL;
-	//}
+		comm_plugins[i] = NULL;
+	}
 
 	free(comm_plugins);
 	comm_plugins = NULL;

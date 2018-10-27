@@ -151,9 +151,9 @@ Context *context_create(ContextId id, int type)
 	context->id = id;
 	context->ref = 1; // reference from list
 
-	gil_lock();
+	//gil_lock();
 	llist_add(context_list, context);
-	gil_unlock();
+	//gil_unlock();
 
 	DEBUG("Created context id %u:%llu", context->id.plugin, context->id.connid);
 
@@ -170,17 +170,17 @@ void context_remove(ContextId id)
 	DEBUG("Removing context %u:%llu", id.plugin, id.connid);
 
 	// grab context and remove from list atomically
-	gil_lock();
+	//gil_lock();
 
 	Context *context = context_get_and_lock(id);
 	if (!context) {
-		gil_unlock();
+		//gil_unlock();
 		return;
 	}
 
 	llist_remove(context_list, context);
 
-	gil_unlock();
+	//gil_unlock();
 
 	--context->ref; // remove reference from list
 
@@ -224,14 +224,14 @@ void context_remove_all()
  */
 Context *context_get_and_lock(ContextId id)
 {
-	gil_lock();
+	//gil_lock();
 
 	Context *ctx = (Context *) llist_search_first(context_list, &id,
 			&context_search_by_id);
 
 	if (ctx == NULL) {
 		WARNING("Cannot find context id %u:%llu", id.plugin, id.connid);
-		gil_unlock();
+		//gil_unlock();
 		return ctx;
 	}
 
@@ -242,7 +242,7 @@ Context *context_get_and_lock(ContextId id)
 			ctx->id.plugin, ctx->id.connid, ctx->ref);
 	}
 
-	gil_unlock();
+	//gil_unlock();
 
 	return ctx;
 }

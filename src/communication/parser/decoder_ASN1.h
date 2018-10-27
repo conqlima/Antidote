@@ -42,7 +42,7 @@
 #ifndef DECODER_ASN1_H_
 #define DECODER_ASN1_H_
 
-#include "src/util/bytelib.h"
+#include "util/bytelib.h"
 
 void decode_segmentdataresult(ByteStreamReader *stream, SegmentDataResult *pointer, int *error);
 void decode_scanreportpervar(ByteStreamReader *stream, ScanReportPerVar *pointer, int *error);

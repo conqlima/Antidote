@@ -203,17 +203,15 @@ void manager_finalize(ContextId id)
 {
 	DEBUG("Manager Finalization");
 
-	//manager_remove_all_listeners();
-	
 	/*Essa função deveria ser chamada apenas no arquivo
 	 * agent.c, mas foi colocada aqui para ser chamada
 	 * apenas uma vez. No arquivo agent.c ela seria chamada
 	 * várias vezes, ocasionando erro de memória*/
-	//agent_remove_all_listeners();
-	
 	ext_configurations_destroy();
 	std_configurations_destroy();
 	communication_finalize(id);
+	agent_remove_all_listeners();
+	manager_remove_all_listeners();
 }
 
 
