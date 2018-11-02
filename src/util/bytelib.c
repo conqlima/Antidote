@@ -209,6 +209,25 @@ intu16 read_intu16(ByteStreamReader *stream, int *error)
 	return ret;
 }
 
+intu16 read_intu16_ByteStreamWriter(ByteStreamWriter *stream, int *error)
+{
+	intu16 ret = 0;
+
+	if (stream) {
+		ret = ntohs(*((uint16_t *) stream->buffer));
+
+		stream->buffer += 2;
+		//stream->unread_bytes -= 2;
+	} else {
+		if (error) {
+			*error = 1;
+		}
+
+		ERROR("read_intu16");
+	}
+
+	return ret;
+}
 /**
  * Consumes an intu32 from data, rearranging it to the proper endianism.
  *

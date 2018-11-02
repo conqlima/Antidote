@@ -71,7 +71,8 @@ typedef enum {
 /**
  * Indicates if the network has been initialized.
  */
-static communication_network_status network_status[11];
+//static communication_network_status network_status[11];
+static communication_network_status *network_status = NULL;
 
 
 /**
@@ -185,10 +186,13 @@ void communication_add_plugin(ContextId id, CommunicationPlugin *plugin)
 		// keep zero as invalid
 		comm_plugins = malloc(size);
 		comm_plugins[0] = 0;
+		network_status = malloc(sizeof(communication_network_status)*(id.plugin+1));
 	} else if (plugin_count == id.plugin) {
 		comm_plugins = realloc(comm_plugins, size);
+		network_status = realloc(network_status, sizeof(communication_network_status)*(id.plugin+1));
 	}
-
+	
+	network_status[id.plugin] = NETWORK_STATUS_NOT_INITIALIZED;
 	comm_plugins[id.plugin] = plugin;
 } 
  
@@ -306,6 +310,7 @@ void communication_finalize(ContextId id)
 	}
 
 	free(comm_plugins);
+	free(network_status);
 	comm_plugins = NULL;
 	plugin_count = 0;
 

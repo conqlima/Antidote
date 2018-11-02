@@ -84,6 +84,8 @@ void read_intu8_many(ByteStreamReader *stream, intu8 *buf, int len, int *error);
 
 intu16 read_intu16(ByteStreamReader *stream, int *error);
 
+intu16 read_intu16_ByteStreamWriter(ByteStreamWriter *stream, int *error);
+
 intu32 read_intu32(ByteStreamReader *stream, int *error);
 
 FLOAT_Type read_float(ByteStreamReader *stream, int *error);
