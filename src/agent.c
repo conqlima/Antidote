@@ -73,7 +73,8 @@ static int agent_listener_count = 0;
 /**
  * Agent configuration
  */
-static AgentConfiguration configuration[6];
+static AgentConfiguration *configuration = NULL;
+static unsigned int configuration_size = 0;
 
 AgentConfiguration *agent_configuration(int nodeNumber)
 {
@@ -130,8 +131,30 @@ void agent_init(ContextId id, CommunicationPlugin **plugins, int config,
 		void *(*event_report_cb)(),
 		struct mds_system_data *(*mds_data_cb)())
 {
+	
 	DEBUG("Agent Initialization");
-	int nodeNumber = (id.plugin+1)/2;
+	unsigned int nodeNumber = (id.plugin+1)/2;
+	
+	if (!configuration){
+	configuration_size = nodeNumber;
+	configuration = (AgentConfiguration*) malloc(sizeof(AgentConfiguration)*(nodeNumber+1));
+	//Is the firts time here? so, register!
+	// Register standard configurations for each specialization.
+	std_configurations_register_conf(
+		blood_pressure_monitor_create_std_config_ID02BC());
+	std_configurations_register_conf(
+		pulse_oximeter_create_std_config_ID0190());
+	std_configurations_register_conf(
+		pulse_oximeter_create_std_config_ID0191());
+	std_configurations_register_conf(
+		weighting_scale_create_std_config_ID05DC());
+	std_configurations_register_conf(
+		glucometer_create_std_config_ID06A4());
+	//mudar aqui
+	}else if (nodeNumber > configuration_size){
+	configuration_size = nodeNumber;
+	configuration = (AgentConfiguration*) realloc(configuration, sizeof(AgentConfiguration)*(nodeNumber+1));
+	}
 	configuration[nodeNumber].config = config;
 	configuration[nodeNumber].event_report_cb = event_report_cb;
 	configuration[nodeNumber].mds_data_cb = mds_data_cb;
@@ -148,17 +171,7 @@ void agent_init(ContextId id, CommunicationPlugin **plugins, int config,
 	communication_set_connection_listeners(&agent_notify_evt_device_connected,
 						&agent_notify_evt_device_disconnected);
 
-	// Register standard configurations for each specialization.
-	std_configurations_register_conf(
-		blood_pressure_monitor_create_std_config_ID02BC());
-	std_configurations_register_conf(
-		pulse_oximeter_create_std_config_ID0190());
-	std_configurations_register_conf(
-		pulse_oximeter_create_std_config_ID0191());
-	std_configurations_register_conf(
-		weighting_scale_create_std_config_ID05DC());
-	std_configurations_register_conf(
-		glucometer_create_std_config_ID06A4());
+	
 }
 
 /**
@@ -169,7 +182,15 @@ void agent_init(ContextId id, CommunicationPlugin **plugins, int config,
  */
 void agent_finalize(ContextId id)
 {
+	static int finalize = 0;
 	DEBUG("Agent Finalization");
+	++finalize;
+	if (finalize == 5){
+	finalize = 0;
+	configuration_size = 0;
+	free(configuration);
+	configuration = NULL;
+	}
 
 	//agent_remove_all_listeners();
 	//std_configurations_destroy();
@@ -227,6 +248,10 @@ void agent_remove_all_listeners()
 		agent_listener_count = 0;
 		free(agent_listener_list);
 		agent_listener_list = NULL;
+	}
+	if (configuration != NULL){
+	free(configuration);
+	configuration = NULL;
 	}
 }
 

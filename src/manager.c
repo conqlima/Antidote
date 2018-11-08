@@ -177,16 +177,16 @@ void manager_init(ContextId id, CommunicationPlugin **plugins)
 	// Register standard configurations for each specialization.
 	// (comment these if you want to test acquisition of extended
 	// configurations)
-	std_configurations_register_conf(
-		blood_pressure_monitor_create_std_config_ID02BC());
-	std_configurations_register_conf(
-		pulse_oximeter_create_std_config_ID0190());
-	std_configurations_register_conf(
-		pulse_oximeter_create_std_config_ID0191());
-	std_configurations_register_conf(
-		weighting_scale_create_std_config_ID05DC());
-	std_configurations_register_conf(
-		glucometer_create_std_config_ID06A4());
+	//std_configurations_register_conf(
+		//blood_pressure_monitor_create_std_config_ID02BC());
+	//std_configurations_register_conf(
+		//pulse_oximeter_create_std_config_ID0190());
+	//std_configurations_register_conf(
+		//pulse_oximeter_create_std_config_ID0191());
+	//std_configurations_register_conf(
+		//weighting_scale_create_std_config_ID05DC());
+	//std_configurations_register_conf(
+		//glucometer_create_std_config_ID06A4());
 
 	// Load Configurations File
 	ext_configurations_load_configurations();
