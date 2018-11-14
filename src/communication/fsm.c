@@ -110,103 +110,104 @@ static char *fsm_event_strings[] = {
  * IEEE 11073 Manager State Table
  */
 static FsmTransitionRule IEEE11073_20601_manager_state_table[] = {
-	{fsm_state_disconnected,	fsm_evt_ind_transport_connection,				fsm_state_unassociated,		NULL}, // 1.1
-	{fsm_state_unassociated,	fsm_evt_ind_transport_disconnect,				fsm_state_disconnected,		&communication_disconnect_tx}, // 2.2
-	{fsm_state_unassociated,	fsm_evt_req_assoc_rel,						fsm_state_unassociated,		NULL}, // 2.6
-	{fsm_state_unassociated,	fsm_evt_req_assoc_abort,					fsm_state_unassociated,		NULL}, // 2.7
-	{fsm_state_unassociated,	fsm_evt_rx_aarq_acceptable_and_known_configuration,		fsm_state_operating,		&association_accept_config_tx}, // 2.9
-	{fsm_state_unassociated,	fsm_evt_rx_aarq_acceptable_and_unknown_configuration,		fsm_state_waiting_for_config,	&configuring_transition_waiting_for_config}, // 2.10
+	// current						input													next							post_action
+	{fsm_state_disconnected,		fsm_evt_ind_transport_connection,						fsm_state_unassociated,			NULL}, // 1.1
+	{fsm_state_unassociated,		fsm_evt_ind_transport_disconnect,						fsm_state_disconnected,			&communication_disconnect_tx}, // 2.2
+	{fsm_state_unassociated,		fsm_evt_req_assoc_rel,									fsm_state_unassociated,			NULL}, // 2.6
+	{fsm_state_unassociated,		fsm_evt_req_assoc_abort,								fsm_state_unassociated,			NULL}, // 2.7
+	{fsm_state_unassociated,		fsm_evt_rx_aarq_acceptable_and_known_configuration,		fsm_state_operating,			&association_accept_config_tx}, // 2.9
+	{fsm_state_unassociated,		fsm_evt_rx_aarq_acceptable_and_unknown_configuration,	fsm_state_waiting_for_config,	&configuring_transition_waiting_for_config}, // 2.10
+		
+	{fsm_state_unassociated,		fsm_evt_rx_aarq_unacceptable_configuration,				fsm_state_unassociated,			&association_unaccept_config_tx}, // 2.11
+		
+		
+	{fsm_state_unassociated,		fsm_evt_rx_aare,										fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 2.12
+	{fsm_state_unassociated,		fsm_evt_rx_rlrq,										fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 2.16
+	{fsm_state_unassociated,		fsm_evt_rx_rlre,										fsm_state_unassociated,			NULL}, // 2.17
+	{fsm_state_unassociated,		fsm_evt_rx_abrt,										fsm_state_unassociated,			NULL}, // 2.18
+	{fsm_state_unassociated,		fsm_evt_rx_prst,										fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 2.19
 
-	{fsm_state_unassociated,	fsm_evt_rx_aarq_unacceptable_configuration,			fsm_state_unassociated,		&association_unaccept_config_tx}, // 2.11
 
-
-	{fsm_state_unassociated,	fsm_evt_rx_aare,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 2.12
-	{fsm_state_unassociated,	fsm_evt_rx_rlrq,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 2.16
-	{fsm_state_unassociated,	fsm_evt_rx_rlre,						fsm_state_unassociated,		NULL}, // 2.17
-	{fsm_state_unassociated,	fsm_evt_rx_abrt,						fsm_state_unassociated,		NULL}, // 2.18
-	{fsm_state_unassociated,	fsm_evt_rx_prst,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 2.19
-
-
-	{fsm_state_waiting_for_config,	fsm_evt_ind_transport_disconnect,				fsm_state_disconnected,		&communication_disconnect_tx}, // 6.2
-	{fsm_state_waiting_for_config,	fsm_evt_ind_timeout,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 6.4
-	{fsm_state_waiting_for_config,	fsm_evt_req_assoc_rel,						fsm_state_disassociating,	&configuring_association_release_request_tx}, // 6.6
-	{fsm_state_waiting_for_config,	fsm_evt_req_assoc_abort,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 6.7
-	{fsm_state_waiting_for_config,	fsm_evt_rx_aarq,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 6.8
-	{fsm_state_waiting_for_config,	fsm_evt_rx_aare,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 6.12
-	{fsm_state_waiting_for_config,	fsm_evt_rx_rlrq,						fsm_state_unassociated,		&disassociating_release_response_tx}, // 6.16
-	{fsm_state_waiting_for_config,	fsm_evt_rx_rlre,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 6.17
-	{fsm_state_waiting_for_config,	fsm_evt_rx_abrt,						fsm_state_unassociated,		NULL}, // 6.18
-	{fsm_state_waiting_for_config,	fsm_evt_rx_roiv_confirmed_event_report,				fsm_state_checking_config,	&configuring_perform_configuration}, // 6.24
-	{fsm_state_waiting_for_config,	fsm_evt_rx_roiv_event_report,					fsm_state_waiting_for_config,	&communication_roer_tx}, // 6.25
-	{fsm_state_waiting_for_config,	fsm_evt_rx_roiv_get,						fsm_state_waiting_for_config,	NULL}, // 6.25
-	{fsm_state_waiting_for_config,	fsm_evt_rx_roiv_set,						fsm_state_waiting_for_config,	NULL}, // 6.25
-	{fsm_state_waiting_for_config,	fsm_evt_rx_roiv_confirmed_set,					fsm_state_waiting_for_config,	NULL}, // 6.25
-	{fsm_state_waiting_for_config,	fsm_evt_rx_roiv_action,						fsm_state_waiting_for_config,	NULL}, // 6.25
-	{fsm_state_waiting_for_config,	fsm_evt_rx_roiv_confirmed_action,				fsm_state_waiting_for_config,	NULL}, // 6.25
-	{fsm_state_waiting_for_config,	fsm_evt_rx_rors,						fsm_state_waiting_for_config,	&communication_check_invoke_id_abort_tx}, // 6.26
-	{fsm_state_waiting_for_config,	fsm_evt_rx_roer,						fsm_state_waiting_for_config,	NULL}, // 6.26 - remark on page 147
-	{fsm_state_waiting_for_config,	fsm_evt_rx_rorj,						fsm_state_waiting_for_config,	NULL}, // 6.26 - remark on page 147
+	{fsm_state_waiting_for_config,	fsm_evt_ind_transport_disconnect,						fsm_state_disconnected,			&communication_disconnect_tx}, // 6.2
+	{fsm_state_waiting_for_config,	fsm_evt_ind_timeout,									fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 6.4
+	{fsm_state_waiting_for_config,	fsm_evt_req_assoc_rel,									fsm_state_disassociating,		&configuring_association_release_request_tx}, // 6.6
+	{fsm_state_waiting_for_config,	fsm_evt_req_assoc_abort,								fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 6.7
+	{fsm_state_waiting_for_config,	fsm_evt_rx_aarq,										fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 6.8
+	{fsm_state_waiting_for_config,	fsm_evt_rx_aare,										fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 6.12
+	{fsm_state_waiting_for_config,	fsm_evt_rx_rlrq,										fsm_state_unassociated,			&disassociating_release_response_tx}, // 6.16
+	{fsm_state_waiting_for_config,	fsm_evt_rx_rlre,										fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 6.17
+	{fsm_state_waiting_for_config,	fsm_evt_rx_abrt,										fsm_state_unassociated,			NULL}, // 6.18
+	{fsm_state_waiting_for_config,	fsm_evt_rx_roiv_confirmed_event_report,					fsm_state_checking_config,		&configuring_perform_configuration}, // 6.24
+	{fsm_state_waiting_for_config,	fsm_evt_rx_roiv_event_report,							fsm_state_waiting_for_config,	&communication_roer_tx}, // 6.25
+	{fsm_state_waiting_for_config,	fsm_evt_rx_roiv_get,									fsm_state_waiting_for_config,	NULL}, // 6.25
+	{fsm_state_waiting_for_config,	fsm_evt_rx_roiv_set,									fsm_state_waiting_for_config,	NULL}, // 6.25
+	{fsm_state_waiting_for_config,	fsm_evt_rx_roiv_confirmed_set,							fsm_state_waiting_for_config,	NULL}, // 6.25
+	{fsm_state_waiting_for_config,	fsm_evt_rx_roiv_action,									fsm_state_waiting_for_config,	NULL}, // 6.25
+	{fsm_state_waiting_for_config,	fsm_evt_rx_roiv_confirmed_action,						fsm_state_waiting_for_config,	NULL}, // 6.25
+	{fsm_state_waiting_for_config,	fsm_evt_rx_rors,										fsm_state_waiting_for_config,	&communication_check_invoke_id_abort_tx}, // 6.26
+	{fsm_state_waiting_for_config,	fsm_evt_rx_roer,										fsm_state_waiting_for_config,	NULL}, // 6.26 - remark on page 147
+	{fsm_state_waiting_for_config,	fsm_evt_rx_rorj,										fsm_state_waiting_for_config,	NULL}, // 6.26 - remark on page 147
 	{fsm_state_waiting_for_config,	fsm_evt_req_agent_supplied_unknown_configuration,		fsm_state_waiting_for_config,	NULL}, // transcoding
-	{fsm_state_waiting_for_config,	fsm_evt_req_agent_supplied_known_configuration,			fsm_state_operating,		NULL}, // transcoding
+	{fsm_state_waiting_for_config,	fsm_evt_req_agent_supplied_known_configuration,			fsm_state_operating,			NULL}, // transcoding
 
 
-	{fsm_state_checking_config,	fsm_evt_ind_transport_disconnect,				fsm_state_disconnected,		&communication_disconnect_tx}, // 7.2
-	{fsm_state_checking_config,	fsm_evt_ind_timeout,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 7.4
-	{fsm_state_checking_config,	fsm_evt_req_assoc_rel,						fsm_state_disassociating,	&disassociating_release_request_tx}, // 7.6
-	{fsm_state_checking_config,	fsm_evt_req_assoc_abort,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 7.7
-	{fsm_state_checking_config,	fsm_evt_rx_aarq_acceptable_and_known_configuration,		fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 7.8
-	{fsm_state_checking_config,	fsm_evt_rx_aarq_acceptable_and_unknown_configuration,		fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 7.8
-	{fsm_state_checking_config,	fsm_evt_rx_aarq_unacceptable_configuration,			fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 7.8
-	{fsm_state_checking_config,	fsm_evt_rx_aare,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 7.12
-	{fsm_state_checking_config,	fsm_evt_rx_rlrq,						fsm_state_unassociated,		&disassociating_release_response_tx}, // 7.16
-	{fsm_state_checking_config,	fsm_evt_rx_rlre,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 7.17 - remark on page 148
-	{fsm_state_checking_config,	fsm_evt_rx_abrt,						fsm_state_unassociated,		NULL}, // 7.18
-	{fsm_state_checking_config,	fsm_evt_rx_roiv_confirmed_event_report,				fsm_state_checking_config,	&configuring_new_measurements_response_tx}, // 7.24
-	{fsm_state_checking_config,	fsm_evt_rx_roiv_all_except_confirmed_event_report,		fsm_state_unassociated,		&communication_roer_tx}, // 7.25
-	{fsm_state_checking_config,	fsm_evt_rx_rors_confirmed_event_report,				fsm_state_checking_config,	NULL}, // 7.26
-	{fsm_state_checking_config,	fsm_evt_rx_rors_get,						fsm_state_checking_config,	NULL}, // 7.26
-	{fsm_state_checking_config,	fsm_evt_rx_rors_confirmed_set,					fsm_state_checking_config,	NULL}, // 7.26
-	{fsm_state_checking_config,	fsm_evt_rx_rors_confirmed_action,				fsm_state_checking_config,	NULL}, // 7.26
-	{fsm_state_checking_config,	fsm_evt_rx_roer,						fsm_state_checking_config,	NULL}, // 7.26
-	{fsm_state_checking_config,	fsm_evt_rx_rorj,						fsm_state_checking_config,	NULL}, // 7.26
-	{fsm_state_checking_config,	fsm_evt_req_agent_supplied_unknown_configuration,		fsm_state_waiting_for_config,	&configuring_configuration_response_tx}, // 7.31
-	{fsm_state_checking_config,	fsm_evt_req_agent_supplied_known_configuration,			fsm_state_operating,		&configuring_configuration_response_tx}, // 7.32
-	{fsm_state_checking_config,	fsm_evt_req_agent_supplied_bad_configuration,			fsm_state_waiting_for_config,	&configuring_configuration_rorj_tx}, // 7.32
-
-
-	{fsm_state_operating,		fsm_evt_ind_transport_disconnect,				fsm_state_disconnected,		NULL}, // 8.2
-	{fsm_state_operating,		fsm_evt_ind_timeout,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 8.4
-	{fsm_state_operating,		fsm_evt_req_assoc_rel,						fsm_state_disassociating,	&operating_assoc_release_req_tx}, // 8.6
-	{fsm_state_operating,		fsm_evt_req_assoc_abort,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 8.7
-	{fsm_state_operating,		fsm_evt_rx_aarq,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 8.8
-	{fsm_state_operating,		fsm_evt_rx_aare,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 8.12
-	{fsm_state_operating,		fsm_evt_rx_rlrq,						fsm_state_unassociated,		&disassociating_release_response_tx}, // 8.16
-	{fsm_state_operating,		fsm_evt_rx_rlre,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 8.17
-	{fsm_state_operating,		fsm_evt_rx_abrt,						fsm_state_unassociated,		NULL}, // 8.18
-	{fsm_state_operating,		fsm_evt_rx_roiv_confirmed_event_report,				fsm_state_operating,		&operating_event_report}, // 8.21
-	{fsm_state_operating,		fsm_evt_rx_roiv_event_report,					fsm_state_operating,		&operating_event_report}, // 8.21
-	{fsm_state_operating,		fsm_evt_rx_roiv_all_except_confirmed_event_report,		fsm_state_operating,		&operating_roiv_non_event_report}, // 8.21
-	{fsm_state_operating,		fsm_evt_rx_rors_confirmed_event_report,				fsm_state_operating,		NULL}, // 8.26 - remark on page 149
-	{fsm_state_operating,		fsm_evt_rx_rors_get,						fsm_state_operating,		&operating_get_response}, // 8.26 - remark on page 149
-	{fsm_state_operating,		fsm_evt_rx_rors_confirmed_set,					fsm_state_operating,		&operating_set_scanner_response}, // 8.26 - remark on page 149
-	{fsm_state_operating,		fsm_evt_rx_rors_confirmed_action,				fsm_state_operating,		&operating_rors_confirmed_action_tx}, // 8.26 - remark on page 149
-	{fsm_state_operating,		fsm_evt_rx_roer,						fsm_state_operating,		&operating_roer_confirmed_action_tx}, // 8.26 - remark on page 149
-	{fsm_state_operating,		fsm_evt_rx_rorj,						fsm_state_operating,		&operating_rorj_confirmed_action_tx}, // 8.26 - remark on page 149
-
-
-	{fsm_state_disassociating,	fsm_evt_ind_transport_disconnect,				fsm_state_disconnected,		NULL}, // 9.2
-	{fsm_state_disassociating,	fsm_evt_ind_timeout,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.4
-	{fsm_state_disassociating,	fsm_evt_req_assoc_rel,						fsm_state_disassociating,	NULL}, // 9.6
-	{fsm_state_disassociating,	fsm_evt_req_assoc_abort,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.7
-	{fsm_state_disassociating,	fsm_evt_rx_aarq,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.8
-	{fsm_state_disassociating,	fsm_evt_rx_aare,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.12
-	{fsm_state_disassociating,	fsm_evt_rx_rlrq,						fsm_state_disassociating,	&disassociating_release_response_tx}, // 9.16
-	{fsm_state_disassociating,	fsm_evt_rx_rlre,						fsm_state_unassociated,		&disassociating_release_proccess_completed}, // 9.17
-	{fsm_state_disassociating,	fsm_evt_rx_abrt,						fsm_state_unassociated,		NULL}, // 9.18
-	{fsm_state_disassociating,	fsm_evt_rx_roiv,						fsm_state_disassociating,	NULL}, // 9.21
-	{fsm_state_disassociating,	fsm_evt_rx_rors,						fsm_state_unassociated,		&communication_check_invoke_id_abort_tx}, // 9.26 - remark on page 150
-	{fsm_state_disassociating,	fsm_evt_rx_roer,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.26 - remark on page 150
-	{fsm_state_disassociating,	fsm_evt_rx_rorj,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.26 - remark on page 150
+	{fsm_state_checking_config,		fsm_evt_ind_transport_disconnect,						fsm_state_disconnected,			&communication_disconnect_tx}, // 7.2
+	{fsm_state_checking_config,		fsm_evt_ind_timeout,									fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 7.4
+	{fsm_state_checking_config,		fsm_evt_req_assoc_rel,									fsm_state_disassociating,		&disassociating_release_request_tx}, // 7.6
+	{fsm_state_checking_config,		fsm_evt_req_assoc_abort,								fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 7.7
+	{fsm_state_checking_config,		fsm_evt_rx_aarq_acceptable_and_known_configuration,		fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 7.8
+	{fsm_state_checking_config,		fsm_evt_rx_aarq_acceptable_and_unknown_configuration,	fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 7.8
+	{fsm_state_checking_config,		fsm_evt_rx_aarq_unacceptable_configuration,				fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 7.8
+	{fsm_state_checking_config,		fsm_evt_rx_aare,										fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 7.12
+	{fsm_state_checking_config,		fsm_evt_rx_rlrq,										fsm_state_unassociated,			&disassociating_release_response_tx}, // 7.16
+	{fsm_state_checking_config,		fsm_evt_rx_rlre,										fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 7.17 - remark on page 148
+	{fsm_state_checking_config,		fsm_evt_rx_abrt,										fsm_state_unassociated,			NULL}, // 7.18
+	{fsm_state_checking_config,		fsm_evt_rx_roiv_confirmed_event_report,					fsm_state_checking_config,		&configuring_new_measurements_response_tx}, // 7.24
+	{fsm_state_checking_config,		fsm_evt_rx_roiv_all_except_confirmed_event_report,		fsm_state_unassociated,			&communication_roer_tx}, // 7.25
+	{fsm_state_checking_config,		fsm_evt_rx_rors_confirmed_event_report,					fsm_state_checking_config,		NULL}, // 7.26
+	{fsm_state_checking_config,		fsm_evt_rx_rors_get,									fsm_state_checking_config,		NULL}, // 7.26
+	{fsm_state_checking_config,		fsm_evt_rx_rors_confirmed_set,							fsm_state_checking_config,		NULL}, // 7.26
+	{fsm_state_checking_config,		fsm_evt_rx_rors_confirmed_action,						fsm_state_checking_config,		NULL}, // 7.26
+	{fsm_state_checking_config,		fsm_evt_rx_roer,										fsm_state_checking_config,		NULL}, // 7.26
+	{fsm_state_checking_config,		fsm_evt_rx_rorj,										fsm_state_checking_config,		NULL}, // 7.26
+	{fsm_state_checking_config,		fsm_evt_req_agent_supplied_unknown_configuration,		fsm_state_waiting_for_config,	&configuring_configuration_response_tx}, // 7.31
+	{fsm_state_checking_config,		fsm_evt_req_agent_supplied_known_configuration,			fsm_state_operating,			&configuring_configuration_response_tx}, // 7.32
+	{fsm_state_checking_config,		fsm_evt_req_agent_supplied_bad_configuration,			fsm_state_waiting_for_config,	&configuring_configuration_rorj_tx}, // 7.32
+	
+	
+	{fsm_state_operating,			fsm_evt_ind_transport_disconnect,						fsm_state_disconnected,			NULL}, // 8.2
+	{fsm_state_operating,			fsm_evt_ind_timeout,									fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 8.4
+	{fsm_state_operating,			fsm_evt_req_assoc_rel,									fsm_state_disassociating,		&operating_assoc_release_req_tx}, // 8.6
+	{fsm_state_operating,			fsm_evt_req_assoc_abort,								fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 8.7
+	{fsm_state_operating,			fsm_evt_rx_aarq,										fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 8.8
+	{fsm_state_operating,			fsm_evt_rx_aare,										fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 8.12
+	{fsm_state_operating,			fsm_evt_rx_rlrq,										fsm_state_unassociated,			&disassociating_release_response_tx}, // 8.16
+	{fsm_state_operating,			fsm_evt_rx_rlre,										fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 8.17
+	{fsm_state_operating,			fsm_evt_rx_abrt,										fsm_state_unassociated,			NULL}, // 8.18
+	{fsm_state_operating,			fsm_evt_rx_roiv_confirmed_event_report,					fsm_state_operating,			&operating_event_report}, // 8.21
+	{fsm_state_operating,			fsm_evt_rx_roiv_event_report,							fsm_state_operating,			&operating_event_report}, // 8.21
+	{fsm_state_operating,			fsm_evt_rx_roiv_all_except_confirmed_event_report,		fsm_state_operating,			&operating_roiv_non_event_report}, // 8.21
+	{fsm_state_operating,			fsm_evt_rx_rors_confirmed_event_report,					fsm_state_operating,			NULL}, // 8.26 - remark on page 149
+	{fsm_state_operating,			fsm_evt_rx_rors_get,									fsm_state_operating,			&operating_get_response}, // 8.26 - remark on page 149
+	{fsm_state_operating,			fsm_evt_rx_rors_confirmed_set,							fsm_state_operating,			&operating_set_scanner_response}, // 8.26 - remark on page 149
+	{fsm_state_operating,			fsm_evt_rx_rors_confirmed_action,						fsm_state_operating,			&operating_rors_confirmed_action_tx}, // 8.26 - remark on page 149
+	{fsm_state_operating,			fsm_evt_rx_roer,										fsm_state_operating,			&operating_roer_confirmed_action_tx}, // 8.26 - remark on page 149
+	{fsm_state_operating,			fsm_evt_rx_rorj,										fsm_state_operating,			&operating_rorj_confirmed_action_tx}, // 8.26 - remark on page 149
+	
+	
+	{fsm_state_disassociating,		fsm_evt_ind_transport_disconnect,						fsm_state_disconnected,			NULL}, // 9.2
+	{fsm_state_disassociating,		fsm_evt_ind_timeout,									fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 9.4
+	{fsm_state_disassociating,		fsm_evt_req_assoc_rel,									fsm_state_disassociating,		NULL}, // 9.6
+	{fsm_state_disassociating,		fsm_evt_req_assoc_abort,								fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 9.7
+	{fsm_state_disassociating,		fsm_evt_rx_aarq,										fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 9.8
+	{fsm_state_disassociating,		fsm_evt_rx_aare,										fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 9.12
+	{fsm_state_disassociating,		fsm_evt_rx_rlrq,										fsm_state_disassociating,		&disassociating_release_response_tx}, // 9.16
+	{fsm_state_disassociating,		fsm_evt_rx_rlre,										fsm_state_unassociated,			&disassociating_release_proccess_completed}, // 9.17
+	{fsm_state_disassociating,		fsm_evt_rx_abrt,										fsm_state_unassociated,			NULL}, // 9.18
+	{fsm_state_disassociating,		fsm_evt_rx_roiv,										fsm_state_disassociating,		NULL}, // 9.21
+	{fsm_state_disassociating,		fsm_evt_rx_rors,										fsm_state_unassociated,			&communication_check_invoke_id_abort_tx}, // 9.26 - remark on page 150
+	{fsm_state_disassociating,		fsm_evt_rx_roer,										fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 9.26 - remark on page 150
+	{fsm_state_disassociating,		fsm_evt_rx_rorj,										fsm_state_unassociated,			&communication_abort_undefined_reason_tx}, // 9.26 - remark on page 150
 
 };
 
@@ -215,129 +216,129 @@ static FsmTransitionRule IEEE11073_20601_manager_state_table[] = {
  * IEEE 11073 Agent State Table
  */
 static FsmTransitionRule IEEE11073_20601_agent_state_table[] = {
-	// current			input							next				post_action
-	{fsm_state_disconnected,	fsm_evt_ind_transport_connection,			fsm_state_unassociated,		&association_agent_mds}, // 1.1
-	{fsm_state_unassociated,	fsm_evt_ind_transport_disconnect,			fsm_state_disconnected,		&communication_disconnect_tx}, // 2.2
-	{fsm_state_unassociated,	fsm_evt_req_assoc,					fsm_state_associating,		&association_aarq_tx}, // 2.5
-	{fsm_state_unassociated,	fsm_evt_req_assoc_rel,					fsm_state_unassociated,		NULL}, // 2.6
-	{fsm_state_unassociated,	fsm_evt_req_assoc_abort,				fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 2.7
-	{fsm_state_unassociated,	fsm_evt_rx_aarq,					fsm_state_unassociated,		&association_agent_aare_rejected_permanent_tx}, // 2.8
-	{fsm_state_unassociated,	fsm_evt_rx_aare,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 2.12
-	{fsm_state_unassociated,	fsm_evt_rx_rlrq,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 2.16
-	{fsm_state_unassociated,	fsm_evt_rx_rlre,					fsm_state_unassociated,		NULL}, // 2.17
-	{fsm_state_unassociated,	fsm_evt_rx_abrt,					fsm_state_unassociated,		NULL}, // 2.18
-	{fsm_state_unassociated,	fsm_evt_rx_prst,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 2.19
-	{fsm_state_associating,		fsm_evt_ind_transport_disconnect,			fsm_state_disconnected,		NULL}, // 3.2
-	{fsm_state_associating,		fsm_evt_ind_timeout,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 3.4
-	{fsm_state_associating,		fsm_evt_req_assoc_rel,					fsm_state_unassociated,		&disassociating_release_request_normal_tx}, // 3.6
-	{fsm_state_associating,		fsm_evt_req_assoc_abort,				fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 3.7
-	{fsm_state_associating,		fsm_evt_rx_aarq,					fsm_state_unassociated,		&association_agent_aare_rejected_permanent_tx}, // 3.8
-	{fsm_state_associating,		fsm_evt_rx_aare_accepted_known,				fsm_state_operating,		NULL}, // 3.13
-	{fsm_state_associating,		fsm_evt_rx_aare_accepted_unknown,			fsm_state_config_sending,	NULL}, // 3.14
-	{fsm_state_associating,		fsm_evt_rx_aare_rejected,				fsm_state_unassociated,		NULL}, // 3.15
-	{fsm_state_associating,		fsm_evt_rx_rlrq,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 3.16
-	{fsm_state_associating,		fsm_evt_rx_rlre,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 3.17
-	{fsm_state_associating,		fsm_evt_rx_abrt,					fsm_state_unassociated,		NULL}, // 3.18
-	{fsm_state_associating,		fsm_evt_rx_prst,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 3.19
-	{fsm_state_config_sending,	fsm_evt_ind_transport_disconnect,			fsm_state_disconnected,		NULL}, // 4.2
-	{fsm_state_config_sending,	fsm_evt_ind_timeout,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.4
-	{fsm_state_config_sending,	fsm_evt_req_assoc_rel,					fsm_state_disassociating,	&disassociating_release_request_normal_tx}, // 4.6
-	{fsm_state_config_sending,	fsm_evt_req_assoc_abort,				fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.7
-	{fsm_state_config_sending,	fsm_evt_rx_aarq,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.8
-	{fsm_state_config_sending,	fsm_evt_rx_aare,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.12
-	{fsm_state_config_sending,	fsm_evt_rx_rlrq,					fsm_state_unassociated,		&disassociating_release_response_tx_normal}, // 4.16
-	{fsm_state_config_sending,	fsm_evt_rx_rlre,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.17
-	{fsm_state_config_sending,	fsm_evt_rx_abrt,					fsm_state_unassociated,		NULL}, // 4.18
-	{fsm_state_config_sending,	fsm_evt_rx_roiv_get,					fsm_state_config_sending,	&communication_agent_roiv_get_mds_tx}, // 4.22
-	{fsm_state_config_sending,	fsm_evt_rx_roiv,					fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 4.23
-	{fsm_state_config_sending,	fsm_evt_rx_roiv_event_report,				fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 4.23
-	{fsm_state_config_sending,	fsm_evt_rx_roiv_confirmed_event_report,			fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 4.23
-	{fsm_state_config_sending,	fsm_evt_rx_roiv_set,					fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 4.23
-	{fsm_state_config_sending,	fsm_evt_rx_roiv_confirmed_set,				fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 4.23
-	{fsm_state_config_sending,	fsm_evt_rx_roiv_action,					fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 4.23
-	{fsm_state_config_sending,	fsm_evt_rx_roiv_confirmed_action,			fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 4.23
-	{fsm_state_config_sending,	fsm_evt_rx_rors,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.26
-	{fsm_state_config_sending,	fsm_evt_rx_rors_confirmed_event_report,			fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.26
-	{fsm_state_config_sending,	fsm_evt_rx_rors_confirmed_event_report_unknown,		fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.26
-	{fsm_state_config_sending,	fsm_evt_rx_rors_confirmed_event_report_known,		fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.26
-	{fsm_state_config_sending,	fsm_evt_rx_rors_get,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.26
-	{fsm_state_config_sending,	fsm_evt_rx_rors_confirmed_set,				fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.26
-	{fsm_state_config_sending,	fsm_evt_rx_rors_confirmed_action,			fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.26
-	{fsm_state_config_sending,	fsm_evt_rx_roer,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.26
-	{fsm_state_config_sending,	fsm_evt_rx_rorj,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.26
-	{fsm_state_config_sending,	fsm_evt_req_send_config,				fsm_state_waiting_approval,	&configuring_send_config_tx}, // 4.32
-	{fsm_state_waiting_approval,	fsm_evt_ind_transport_disconnect,			fsm_state_disconnected,		NULL}, // 5.2
-	{fsm_state_waiting_approval,	fsm_evt_ind_timeout,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.4
-	{fsm_state_waiting_approval,	fsm_evt_req_assoc_rel,					fsm_state_disassociating,	&disassociating_release_request_normal_tx}, // 5.6
-	{fsm_state_waiting_approval,	fsm_evt_req_assoc_abort,				fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.7
-	{fsm_state_waiting_approval,	fsm_evt_rx_aarq,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.8
-	{fsm_state_waiting_approval,	fsm_evt_rx_aare,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.12
-	{fsm_state_waiting_approval,	fsm_evt_rx_rlrq,					fsm_state_unassociated,		&disassociating_release_response_tx_normal}, // 5.16
-	{fsm_state_waiting_approval,	fsm_evt_rx_rlre,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.17
-	{fsm_state_waiting_approval,	fsm_evt_rx_abrt,					fsm_state_unassociated,		NULL}, // 5.18
-	{fsm_state_waiting_approval,	fsm_evt_rx_roiv_get,					fsm_state_config_sending,	&communication_agent_roiv_get_mds_tx}, // 5.22
-	{fsm_state_waiting_approval,	fsm_evt_rx_roiv,					fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 5.23
-	{fsm_state_waiting_approval,	fsm_evt_rx_roiv_event_report,				fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 5.23
-	{fsm_state_waiting_approval,	fsm_evt_rx_roiv_confirmed_event_report,			fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 5.23
-	{fsm_state_waiting_approval,	fsm_evt_rx_roiv_set,					fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 5.23
-	{fsm_state_waiting_approval,	fsm_evt_rx_roiv_confirmed_set,				fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 5.23
-	{fsm_state_waiting_approval,	fsm_evt_rx_roiv_action,					fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 5.23
-	{fsm_state_waiting_approval,	fsm_evt_rx_roiv_confirmed_action,			fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 5.23
+	// current						input												next						post_action
+	{fsm_state_disconnected,		fsm_evt_ind_transport_connection,					fsm_state_unassociated,		&association_agent_mds}, // 1.1
+	{fsm_state_unassociated,		fsm_evt_ind_transport_disconnect,					fsm_state_disconnected,		&communication_disconnect_tx}, // 2.2
+	{fsm_state_unassociated,		fsm_evt_req_assoc,									fsm_state_associating,		&association_aarq_tx}, // 2.5
+	{fsm_state_unassociated,		fsm_evt_req_assoc_rel,								fsm_state_unassociated,		NULL}, // 2.6
+	{fsm_state_unassociated,		fsm_evt_req_assoc_abort,							fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 2.7
+	{fsm_state_unassociated,		fsm_evt_rx_aarq,									fsm_state_unassociated,		&association_agent_aare_rejected_permanent_tx}, // 2.8
+	{fsm_state_unassociated,		fsm_evt_rx_aare,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 2.12
+	{fsm_state_unassociated,		fsm_evt_rx_rlrq,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 2.16
+	{fsm_state_unassociated,		fsm_evt_rx_rlre,									fsm_state_unassociated,		NULL}, // 2.17
+	{fsm_state_unassociated,		fsm_evt_rx_abrt,									fsm_state_unassociated,		NULL}, // 2.18
+	{fsm_state_unassociated,		fsm_evt_rx_prst,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 2.19
+	{fsm_state_associating,			fsm_evt_ind_transport_disconnect,					fsm_state_disconnected,		NULL}, // 3.2
+	{fsm_state_associating,			fsm_evt_ind_timeout,								fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 3.4
+	{fsm_state_associating,			fsm_evt_req_assoc_rel,								fsm_state_unassociated,		&disassociating_release_request_normal_tx}, // 3.6
+	{fsm_state_associating,			fsm_evt_req_assoc_abort,							fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 3.7
+	{fsm_state_associating,			fsm_evt_rx_aarq,									fsm_state_unassociated,		&association_agent_aare_rejected_permanent_tx}, // 3.8
+	{fsm_state_associating,			fsm_evt_rx_aare_accepted_known,						fsm_state_operating,		NULL}, // 3.13
+	{fsm_state_associating,			fsm_evt_rx_aare_accepted_unknown,					fsm_state_config_sending,	NULL}, // 3.14
+	{fsm_state_associating,			fsm_evt_rx_aare_rejected,							fsm_state_unassociated,		NULL}, // 3.15
+	{fsm_state_associating,			fsm_evt_rx_rlrq,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 3.16
+	{fsm_state_associating,			fsm_evt_rx_rlre,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 3.17
+	{fsm_state_associating,			fsm_evt_rx_abrt,									fsm_state_unassociated,		NULL}, // 3.18
+	{fsm_state_associating,			fsm_evt_rx_prst,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 3.19
+	{fsm_state_config_sending,		fsm_evt_ind_transport_disconnect,					fsm_state_disconnected,		NULL}, // 4.2
+	{fsm_state_config_sending,		fsm_evt_ind_timeout,								fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.4
+	{fsm_state_config_sending,		fsm_evt_req_assoc_rel,								fsm_state_disassociating,	&disassociating_release_request_normal_tx}, // 4.6
+	{fsm_state_config_sending,		fsm_evt_req_assoc_abort,							fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.7
+	{fsm_state_config_sending,		fsm_evt_rx_aarq,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.8
+	{fsm_state_config_sending,		fsm_evt_rx_aare,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.12
+	{fsm_state_config_sending,		fsm_evt_rx_rlrq,									fsm_state_unassociated,		&disassociating_release_response_tx_normal}, // 4.16
+	{fsm_state_config_sending,		fsm_evt_rx_rlre,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.17
+	{fsm_state_config_sending,		fsm_evt_rx_abrt,									fsm_state_unassociated,		NULL}, // 4.18
+	{fsm_state_config_sending,		fsm_evt_rx_roiv_get,								fsm_state_config_sending,	&communication_agent_roiv_get_mds_tx}, // 4.22
+	{fsm_state_config_sending,		fsm_evt_rx_roiv,									fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 4.23
+	{fsm_state_config_sending,		fsm_evt_rx_roiv_event_report,						fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 4.23
+	{fsm_state_config_sending,		fsm_evt_rx_roiv_confirmed_event_report,				fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 4.23
+	{fsm_state_config_sending,		fsm_evt_rx_roiv_set,								fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 4.23
+	{fsm_state_config_sending,		fsm_evt_rx_roiv_confirmed_set,						fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 4.23
+	{fsm_state_config_sending,		fsm_evt_rx_roiv_action,								fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 4.23
+	{fsm_state_config_sending,		fsm_evt_rx_roiv_confirmed_action,					fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 4.23
+	{fsm_state_config_sending,		fsm_evt_rx_rors,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.26
+	{fsm_state_config_sending,		fsm_evt_rx_rors_confirmed_event_report,				fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.26
+	{fsm_state_config_sending,		fsm_evt_rx_rors_confirmed_event_report_unknown,		fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.26
+	{fsm_state_config_sending,		fsm_evt_rx_rors_confirmed_event_report_known,		fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.26
+	{fsm_state_config_sending,		fsm_evt_rx_rors_get,								fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.26
+	{fsm_state_config_sending,		fsm_evt_rx_rors_confirmed_set,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.26
+	{fsm_state_config_sending,		fsm_evt_rx_rors_confirmed_action,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.26
+	{fsm_state_config_sending,		fsm_evt_rx_roer,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.26
+	{fsm_state_config_sending,		fsm_evt_rx_rorj,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 4.26
+	{fsm_state_config_sending,		fsm_evt_req_send_config,							fsm_state_waiting_approval,	&configuring_send_config_tx}, // 4.32
+	{fsm_state_waiting_approval,	fsm_evt_ind_transport_disconnect,					fsm_state_disconnected,		NULL}, // 5.2
+	{fsm_state_waiting_approval,	fsm_evt_ind_timeout,								fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.4
+	{fsm_state_waiting_approval,	fsm_evt_req_assoc_rel,								fsm_state_disassociating,	&disassociating_release_request_normal_tx}, // 5.6
+	{fsm_state_waiting_approval,	fsm_evt_req_assoc_abort,							fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.7
+	{fsm_state_waiting_approval,	fsm_evt_rx_aarq,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.8
+	{fsm_state_waiting_approval,	fsm_evt_rx_aare,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.12
+	{fsm_state_waiting_approval,	fsm_evt_rx_rlrq,									fsm_state_unassociated,		&disassociating_release_response_tx_normal}, // 5.16
+	{fsm_state_waiting_approval,	fsm_evt_rx_rlre,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.17
+	{fsm_state_waiting_approval,	fsm_evt_rx_abrt,									fsm_state_unassociated,		NULL}, // 5.18
+	{fsm_state_waiting_approval,	fsm_evt_rx_roiv_get,								fsm_state_config_sending,	&communication_agent_roiv_get_mds_tx}, // 5.22
+	{fsm_state_waiting_approval,	fsm_evt_rx_roiv,									fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 5.23
+	{fsm_state_waiting_approval,	fsm_evt_rx_roiv_event_report,						fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 5.23
+	{fsm_state_waiting_approval,	fsm_evt_rx_roiv_confirmed_event_report,				fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 5.23
+	{fsm_state_waiting_approval,	fsm_evt_rx_roiv_set,								fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 5.23
+	{fsm_state_waiting_approval,	fsm_evt_rx_roiv_confirmed_set,						fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 5.23
+	{fsm_state_waiting_approval,	fsm_evt_rx_roiv_action,								fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 5.23
+	{fsm_state_waiting_approval,	fsm_evt_rx_roiv_confirmed_action,					fsm_state_config_sending,	&communication_agent_roer_no_tx}, // 5.23
 	{fsm_state_waiting_approval,	fsm_evt_rx_rors_confirmed_event_report_unknown,		fsm_state_config_sending,	NULL}, // 5.27
 	{fsm_state_waiting_approval,	fsm_evt_rx_rors_confirmed_event_report_known,		fsm_state_operating,		NULL}, // 5.29
-	{fsm_state_waiting_approval,	fsm_evt_rx_rors,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.30
-	{fsm_state_waiting_approval,	fsm_evt_rx_rors_confirmed_event_report,			fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.30
-	{fsm_state_waiting_approval,	fsm_evt_rx_rors_get,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.30
-	{fsm_state_waiting_approval,	fsm_evt_rx_rors_confirmed_set,				fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.30
-	{fsm_state_waiting_approval,	fsm_evt_rx_rors_confirmed_action,			fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.30
-	{fsm_state_waiting_approval,	fsm_evt_rx_roer,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.30
-	{fsm_state_waiting_approval,	fsm_evt_rx_rorj,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.30
-	{fsm_state_operating,		fsm_evt_ind_transport_disconnect,			fsm_state_disconnected,		NULL}, // 8.2
-	{fsm_state_operating,		fsm_evt_ind_timeout,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 8.4
-	{fsm_state_operating,		fsm_evt_req_assoc_rel,					fsm_state_disassociating,	&disassociating_release_request_normal_tx}, // 8.6
-
-	{fsm_state_operating,		fsm_evt_req_assoc_abort,				fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 8.7
-	{fsm_state_operating,		fsm_evt_req_send_event,					fsm_state_operating,		&communication_agent_send_event_tx}, // 8.7
-	{fsm_state_operating,		fsm_evt_rx_aarq,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 8.8
-	{fsm_state_operating,		fsm_evt_rx_aare,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 8.12
-	{fsm_state_operating,		fsm_evt_rx_rlrq,					fsm_state_unassociated,		&disassociating_release_response_tx_normal}, // 8.16
-	{fsm_state_operating,		fsm_evt_rx_rlre,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 8.17
-	{fsm_state_operating,		fsm_evt_rx_abrt,					fsm_state_unassociated,		NULL}, // 8.18
-	{fsm_state_operating,		fsm_evt_rx_roiv,					fsm_state_operating,		&communication_agent_roiv_respond_tx}, // 8.21
-	{fsm_state_operating,		fsm_evt_rx_roiv_confirmed_event_report,			fsm_state_operating,		&communication_agent_roiv_confirmed_event_report_respond_tx}, // 8.21
-	{fsm_state_operating,		fsm_evt_rx_roiv_get,					fsm_state_operating,		&communication_agent_roiv_get_mds_tx}, // 8.21
-	{fsm_state_operating,		fsm_evt_rx_roiv_set,					fsm_state_operating,		&communication_agent_roiv_set_respond_tx}, // 8.21
-	{fsm_state_operating,		fsm_evt_rx_roiv_confirmed_set,				fsm_state_operating,		&communication_agent_roiv_confirmed_set_respond_tx}, // 8.21
-	{fsm_state_operating,		fsm_evt_rx_roiv_confirmed_action,			fsm_state_operating,		&communication_agent_roiv_confirmed_action_respond_tx}, // 8.21
-	{fsm_state_operating,		fsm_evt_rx_roiv_action,					fsm_state_operating,		&communication_agent_roiv_action_respond_tx}, // 8.21
-	{fsm_state_operating,		fsm_evt_rx_rors,					fsm_state_operating,		NULL}, // 8.26
-	{fsm_state_operating,		fsm_evt_rx_rors_confirmed_event_report,			fsm_state_operating,		NULL}, // 8.26
-	{fsm_state_operating,		fsm_evt_rx_rors_confirmed_event_report_unknown,		fsm_state_operating,		NULL}, // 8.26
-	{fsm_state_operating,		fsm_evt_rx_rors_confirmed_event_report_known,		fsm_state_operating,		NULL}, // 8.26
-	{fsm_state_operating,		fsm_evt_rx_rors_get,					fsm_state_operating,		NULL}, // 8.26
-	{fsm_state_operating,		fsm_evt_rx_rors_confirmed_set,				fsm_state_operating,		NULL}, // 8.26
-	{fsm_state_operating,		fsm_evt_rx_rors_confirmed_action,			fsm_state_operating,		NULL}, // 8.26
-	{fsm_state_operating,		fsm_evt_rx_roer,					fsm_state_operating,		NULL}, // 8.26
-	{fsm_state_operating,		fsm_evt_rx_rorj,					fsm_state_operating,		NULL}, // 8.26
-	{fsm_state_disassociating,	fsm_evt_ind_transport_disconnect,			fsm_state_disconnected,		NULL}, // 9.2
-	{fsm_state_disassociating,	fsm_evt_ind_timeout,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.4
-	{fsm_state_disassociating,	fsm_evt_req_assoc_rel,					fsm_state_disassociating,	NULL}, // 9.6
-	{fsm_state_disassociating,	fsm_evt_req_assoc_abort,				fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.7
-	{fsm_state_disassociating,	fsm_evt_rx_aarq,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.8
-	{fsm_state_disassociating,	fsm_evt_rx_aare,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.12
-	{fsm_state_disassociating,	fsm_evt_rx_rlrq,					fsm_state_disassociating,	&disassociating_release_response_tx_normal}, // 9.16
-	{fsm_state_disassociating,	fsm_evt_rx_rlre,					fsm_state_unassociated,		NULL}, // 9.17
-	{fsm_state_disassociating,	fsm_evt_rx_abrt,					fsm_state_unassociated,		NULL}, // 9.18
-	{fsm_state_disassociating,	fsm_evt_rx_roiv,					fsm_state_disassociating,	NULL}, // 9.21
-	{fsm_state_disassociating,	fsm_evt_rx_rors,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.26
-	{fsm_state_disassociating,	fsm_evt_rx_rors_confirmed_event_report,			fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.26
-	{fsm_state_disassociating,	fsm_evt_rx_rors_confirmed_event_report_unknown,		fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.26
-	{fsm_state_disassociating,	fsm_evt_rx_rors_confirmed_event_report_known,		fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.26
-	{fsm_state_disassociating,	fsm_evt_rx_rors_get,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.26
-	{fsm_state_disassociating,	fsm_evt_rx_rors_confirmed_set,				fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.26
-	{fsm_state_disassociating,	fsm_evt_rx_rors_confirmed_action,			fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.26
-	{fsm_state_disassociating,	fsm_evt_rx_roer,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.26
-	{fsm_state_disassociating,	fsm_evt_rx_rorj,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.26
+	{fsm_state_waiting_approval,	fsm_evt_rx_rors,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.30
+	{fsm_state_waiting_approval,	fsm_evt_rx_rors_confirmed_event_report,				fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.30
+	{fsm_state_waiting_approval,	fsm_evt_rx_rors_get,								fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.30
+	{fsm_state_waiting_approval,	fsm_evt_rx_rors_confirmed_set,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.30
+	{fsm_state_waiting_approval,	fsm_evt_rx_rors_confirmed_action,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.30
+	{fsm_state_waiting_approval,	fsm_evt_rx_roer,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.30
+	{fsm_state_waiting_approval,	fsm_evt_rx_rorj,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 5.30
+	{fsm_state_operating,			fsm_evt_ind_transport_disconnect,					fsm_state_disconnected,		NULL}, // 8.2
+	{fsm_state_operating,			fsm_evt_ind_timeout,								fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 8.4
+	{fsm_state_operating,			fsm_evt_req_assoc_rel,								fsm_state_disassociating,	&disassociating_release_request_normal_tx}, // 8.6
+	
+	{fsm_state_operating,			fsm_evt_req_assoc_abort,							fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 8.7
+	{fsm_state_operating,			fsm_evt_req_send_event,								fsm_state_operating,		&communication_agent_send_event_tx}, // 8.7
+	{fsm_state_operating,			fsm_evt_rx_aarq,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 8.8
+	{fsm_state_operating,			fsm_evt_rx_aare,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 8.12
+	{fsm_state_operating,			fsm_evt_rx_rlrq,									fsm_state_unassociated,		&disassociating_release_response_tx_normal}, // 8.16
+	{fsm_state_operating,			fsm_evt_rx_rlre,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 8.17
+	{fsm_state_operating,			fsm_evt_rx_abrt,									fsm_state_unassociated,		NULL}, // 8.18
+	{fsm_state_operating,			fsm_evt_rx_roiv,									fsm_state_operating,		&communication_agent_roiv_respond_tx}, // 8.21
+	{fsm_state_operating,			fsm_evt_rx_roiv_confirmed_event_report,				fsm_state_operating,		&communication_agent_roiv_confirmed_event_report_respond_tx}, // 8.21
+	{fsm_state_operating,			fsm_evt_rx_roiv_get,								fsm_state_operating,		&communication_agent_roiv_get_mds_tx}, // 8.21
+	{fsm_state_operating,			fsm_evt_rx_roiv_set,								fsm_state_operating,		&communication_agent_roiv_set_respond_tx}, // 8.21
+	{fsm_state_operating,			fsm_evt_rx_roiv_confirmed_set,						fsm_state_operating,		&communication_agent_roiv_confirmed_set_respond_tx}, // 8.21
+	{fsm_state_operating,			fsm_evt_rx_roiv_confirmed_action,					fsm_state_operating,		&communication_agent_roiv_confirmed_action_respond_tx}, // 8.21
+	{fsm_state_operating,			fsm_evt_rx_roiv_action,								fsm_state_operating,		&communication_agent_roiv_action_respond_tx}, // 8.21
+	{fsm_state_operating,			fsm_evt_rx_rors,									fsm_state_operating,		NULL}, // 8.26
+	{fsm_state_operating,			fsm_evt_rx_rors_confirmed_event_report,				fsm_state_operating,		NULL}, // 8.26
+	{fsm_state_operating,			fsm_evt_rx_rors_confirmed_event_report_unknown,		fsm_state_operating,		NULL}, // 8.26
+	{fsm_state_operating,			fsm_evt_rx_rors_confirmed_event_report_known,		fsm_state_operating,		NULL}, // 8.26
+	{fsm_state_operating,			fsm_evt_rx_rors_get,								fsm_state_operating,		NULL}, // 8.26
+	{fsm_state_operating,			fsm_evt_rx_rors_confirmed_set,						fsm_state_operating,		NULL}, // 8.26
+	{fsm_state_operating,			fsm_evt_rx_rors_confirmed_action,					fsm_state_operating,		NULL}, // 8.26
+	{fsm_state_operating,			fsm_evt_rx_roer,									fsm_state_operating,		NULL}, // 8.26
+	{fsm_state_operating,			fsm_evt_rx_rorj,									fsm_state_operating,		NULL}, // 8.26
+	{fsm_state_disassociating,		fsm_evt_ind_transport_disconnect,					fsm_state_disconnected,		NULL}, // 9.2
+	{fsm_state_disassociating,		fsm_evt_ind_timeout,								fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.4
+	{fsm_state_disassociating,		fsm_evt_req_assoc_rel,								fsm_state_disassociating,	NULL}, // 9.6
+	{fsm_state_disassociating,		fsm_evt_req_assoc_abort,							fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.7
+	{fsm_state_disassociating,		fsm_evt_rx_aarq,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.8
+	{fsm_state_disassociating,		fsm_evt_rx_aare,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.12
+	{fsm_state_disassociating,		fsm_evt_rx_rlrq,									fsm_state_disassociating,	&disassociating_release_response_tx_normal}, // 9.16
+	{fsm_state_disassociating,		fsm_evt_rx_rlre,									fsm_state_unassociated,		NULL}, // 9.17
+	{fsm_state_disassociating,		fsm_evt_rx_abrt,									fsm_state_unassociated,		NULL}, // 9.18
+	{fsm_state_disassociating,		fsm_evt_rx_roiv,									fsm_state_disassociating,	NULL}, // 9.21
+	{fsm_state_disassociating,		fsm_evt_rx_rors,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.26
+	{fsm_state_disassociating,		fsm_evt_rx_rors_confirmed_event_report,				fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.26
+	{fsm_state_disassociating,		fsm_evt_rx_rors_confirmed_event_report_unknown,		fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.26
+	{fsm_state_disassociating,		fsm_evt_rx_rors_confirmed_event_report_known,		fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.26
+	{fsm_state_disassociating,		fsm_evt_rx_rors_get,								fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.26
+	{fsm_state_disassociating,		fsm_evt_rx_rors_confirmed_set,						fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.26
+	{fsm_state_disassociating,		fsm_evt_rx_rors_confirmed_action,					fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.26
+	{fsm_state_disassociating,		fsm_evt_rx_roer,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.26
+	{fsm_state_disassociating,		fsm_evt_rx_rorj,									fsm_state_unassociated,		&communication_abort_undefined_reason_tx}, // 9.26
 	};
 
 

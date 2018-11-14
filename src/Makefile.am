@@ -73,3 +73,9 @@ pkgconfig_DATA = antidote.pc
 				util/linkedlist.h \
 				util/log.h \
 				util/strbuff.h
+@PACKAGE@_include_specializationsdir = $(pkgincludedir)/specializations
+@PACKAGE@_include_specializations_HEADERS = specializations/pulse_oximeter.h \
+				specializations/blood_pressure_monitor.h \
+				specializations/weighing_scale.h \
+				specializations/glucometer.h \
+				specializations/thermometer.h
