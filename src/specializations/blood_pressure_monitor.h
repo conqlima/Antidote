@@ -59,4 +59,7 @@ struct blood_pressure_event_report_data {
 	int second;
 	int sec_fractions;
 };
+
+extern uint16_t event_conf_or_unconf_blood_pressure;
+
 #endif /* BLOOD_PRESSURE_MONITOR_H_ */

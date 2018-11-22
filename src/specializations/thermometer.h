@@ -42,4 +42,6 @@ struct thermometer_event_report_data {
 	int sec_fractions;
 };
 
+extern uint16_t event_conf_or_unconf_thermometer;
+
 #endif /* THERMOMETER_MONITOR_H_ */

@@ -7,6 +7,8 @@
 #include "src/dim/mds.h"
 #include "src/util/log.h"
 
+//default value is a non-confirmed event
+uint16_t event_conf_or_unconf_thermometer = ROIV_CMIP_EVENT_REPORT_CHOSEN;
 
 static ConfigObjectList *thermometer_get_config_ID0320()
 {
@@ -92,7 +94,9 @@ static DATA_apdu *thermometer_populate_event_report(void *edata)
 	// will be filled afterwards by service_* function
 	data->invoke_id = 0xffff;
 
-	data->message.choice = ROIV_CMIP_CONFIRMED_EVENT_REPORT_CHOSEN;
+	//data->message.choice = ROIV_CMIP_CONFIRMED_EVENT_REPORT_CHOSEN;
+	data->message.choice = event_conf_or_unconf_thermometer;
+	
 	data->message.length = 34;
 
 	evt.obj_handle = 0;

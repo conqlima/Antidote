@@ -36,6 +36,10 @@
 #include "src/dim/nomenclature.h"
 #include "src/dim/mds.h"
 
+//default value is a non-confirmed event
+uint16_t event_conf_or_unconf_pulse_oximeter = ROIV_CMIP_EVENT_REPORT_CHOSEN;
+
+
 /**
  * \defgroup PulseOximeter Pulse Oximeter
  * \ingroup DeviceSpecializations
@@ -373,7 +377,8 @@ static DATA_apdu *pulse_oximeter_populate_event_report(void *edata)
 	data->invoke_id = 0xffff;
 
 	// data->message.choice = ROIV_CMIP_CONFIRMED_EVENT_REPORT_CHOSEN;
-	data->message.choice = ROIV_CMIP_EVENT_REPORT_CHOSEN;
+	//data->message.choice = ROIV_CMIP_EVENT_REPORT_CHOSEN;
+	data->message.choice = event_conf_or_unconf_pulse_oximeter;
 	data->message.length = 46;
 
 	evt.obj_handle = 0;

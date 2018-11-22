@@ -316,7 +316,7 @@ Request *mds_service_action_data_request(Context *ctx, DataReqMode data_req_mode
 		return NULL;
 	}
 
-	if (mds_is_supported_data_request(ctx->mds, data_req_mode)) {
+	if (!mds_is_supported_data_request(ctx->mds, data_req_mode)) {
 		APDU *apdu = (APDU *)calloc(1, sizeof(APDU));
 		DATA_apdu *data_apdu = (DATA_apdu *) calloc(1, sizeof(DATA_apdu));
 

@@ -55,4 +55,6 @@ struct glucometer_event_report_data {
 	int sec_fractions;
 };
 
+extern uint16_t event_conf_or_unconf_glucometer;
+
 #endif /* GLUCOMETER_H_ */

@@ -40,6 +40,10 @@
 /** Measurement 1: Weight */
 #define HANDLE_MEASUREMENT_1 1
 
+//default value is a non-confirmed event
+uint16_t event_conf_or_unconf_weighting_scale = ROIV_CMIP_EVENT_REPORT_CHOSEN;
+
+
 /**
  * \defgroup WeighingScale Weighing Scale
  * \ingroup DeviceSpecializations
@@ -188,7 +192,8 @@ static DATA_apdu *weight_scale_populate_event_report(void *edata)
 	// will be filled afterwards by service_* function
 	data->invoke_id = 0xffff;
 
-	data->message.choice = ROIV_CMIP_CONFIRMED_EVENT_REPORT_CHOSEN;
+	//data->message.choice = ROIV_CMIP_CONFIRMED_EVENT_REPORT_CHOSEN;
+	data->message.choice = event_conf_or_unconf_weighting_scale;
 	data->message.length = 82;
 
 	evt.obj_handle = 0;
