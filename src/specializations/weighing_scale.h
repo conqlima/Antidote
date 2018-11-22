@@ -56,4 +56,6 @@ struct weightscale_event_report_data {
 	int sec_fractions;
 };
 
+extern uint16_t event_conf_or_unconf_weighting_scale;
+
 #endif /* BODY_COMPOSITION_MONITOR_H_ */

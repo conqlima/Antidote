@@ -36,6 +36,10 @@
 #include "src/dim/nomenclature.h"
 #include "src/dim/mds.h"
 
+//default value is a non-confirmed event
+uint16_t event_conf_or_unconf_glucometer = ROIV_CMIP_EVENT_REPORT_CHOSEN;
+
+
 /**
  * \defgroup Glucometer Glucometer Device Specialization Implementation
  * \ingroup DeviceSpecializations
@@ -142,7 +146,8 @@ static DATA_apdu *glucometer_populate_event_report(void *edata)
 	// will be filled afterwards by service_* function
 	data->invoke_id = 0xffff;
 
-	data->message.choice = ROIV_CMIP_CONFIRMED_EVENT_REPORT_CHOSEN;
+	//data->message.choice = ROIV_CMIP_CONFIRMED_EVENT_REPORT_CHOSEN;
+	data->message.choice = event_conf_or_unconf_glucometer;
 	data->message.length = 34;
 
 	evt.obj_handle = 0;

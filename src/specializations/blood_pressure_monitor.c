@@ -172,6 +172,10 @@
 /** Measurement 2: Pulse rate */
 #define HANDLE_MEASUREMENT_2 2
 
+//default value is a non-confirmed event
+uint16_t event_conf_or_unconf_blood_pressure = ROIV_CMIP_EVENT_REPORT_CHOSEN;
+
+
 /**
  *  Returns the standard configuration for <em>Blood Pressure Monitor</em> specialization (02BC).
  *  For more information about <em>Blood Pressure Monitor</em> specialization, see IEEE 11073-10407
@@ -335,7 +339,8 @@ static DATA_apdu *blood_pressure_populate_event_report(void *edata)
 	// will be filled afterwards by service_* function
 	data->invoke_id = 0xffff;
 
-	data->message.choice = ROIV_CMIP_CONFIRMED_EVENT_REPORT_CHOSEN;
+	//data->message.choice = ROIV_CMIP_CONFIRMED_EVENT_REPORT_CHOSEN;
+	data->message.choice = event_conf_or_unconf_blood_pressure;
 	data->message.length = 54;
 
 	evt.obj_handle = 0;
