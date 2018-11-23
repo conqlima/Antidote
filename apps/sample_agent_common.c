@@ -159,6 +159,8 @@ void *glucometer_event_report_cb()
 	return data;
 }
 
+
+
 /**
  * Generate data for MDS
  */

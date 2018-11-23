@@ -78,4 +78,5 @@ pkgconfig_DATA = antidote.pc
 				specializations/blood_pressure_monitor.h \
 				specializations/weighing_scale.h \
 				specializations/glucometer.h \
-				specializations/thermometer.h
+				specializations/thermometer.h \
+				specializations/basic_ECG.h

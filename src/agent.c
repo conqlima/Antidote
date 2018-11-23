@@ -57,6 +57,7 @@
 #include "src/specializations/weighing_scale.h"
 #include "src/specializations/glucometer.h"
 #include "src/specializations/thermometer.h"
+#include "src/specializations/basic_ECG.h"
 #include "src/dim/mds.h"
 #include "src/util/log.h"
 
@@ -153,6 +154,8 @@ void agent_init(ContextId id, CommunicationPlugin **plugins, int config,
 		glucometer_create_std_config_ID06A4());
 	std_configurations_register_conf(
 		thermometer_create_std_config_ID0320());
+	std_configurations_register_conf(
+		basic_ECG_create_std_config_ID0258());
 	//mudar aqui
 	}else if (nodeNumber > configuration_size){
 	configuration_size = nodeNumber;

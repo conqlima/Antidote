@@ -7,7 +7,8 @@ libspecializations_la_SOURCES = \
 				pulse_oximeter.c \
 				weighing_scale.c \
 				glucometer.c \
-				thermometer.c
+				thermometer.c \
+				basic_ECG.c
 
 @PACKAGE@_include_specializationsdir = $(pkgincludedir)/specializations
 
@@ -16,4 +17,5 @@ libspecializations_la_SOURCES = \
 				pulse_oximeter.h \
 				weighing_scale.h \
 				glucometer.h \
-				thermometer.h
+				thermometer.h \
+				basic_ECG.h
