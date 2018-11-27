@@ -126,7 +126,7 @@ static DATA_apdu *basic_ECG_populate_event_report(void *edata)
 	//data->message.choice = ROIV_CMIP_CONFIRMED_EVENT_REPORT_CHOSEN;
 	data->message.choice = event_conf_or_unconf_basic_ecg;
 	
-	data->message.length = 122; /**72*/
+	data->message.length = 122; /***/
 
 	evt.obj_handle = 0;
 	//evt.event_time = 0xFFFFFFFF;
@@ -138,8 +138,8 @@ static DATA_apdu *basic_ECG_populate_event_report(void *edata)
 	scan.scan_report_no = 0;
 
 	scan_fixed.count = 1;
-	scan_fixed.length = 104; /**/
-	scan_fixed.value = measure;
+	scan_fixed.length = 104; /***/
+	scan_fixed.value = measure;/*do not include this in lengh*/
 
 	measure[0].obj_handle = 1;
 	measure[0].obs_val_data.length = 98; /*90 bytes of samples and 8 bytes of data time*/
