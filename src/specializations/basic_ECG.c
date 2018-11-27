@@ -126,19 +126,19 @@ static DATA_apdu *basic_ECG_populate_event_report(void *edata)
 	//data->message.choice = ROIV_CMIP_CONFIRMED_EVENT_REPORT_CHOSEN;
 	data->message.choice = event_conf_or_unconf_basic_ecg;
 	
-	data->message.length = 108; /**72*/
+	data->message.length = 122; /**72*/
 
 	evt.obj_handle = 0;
 	//evt.event_time = 0xFFFFFFFF;
 	evt.event_time = 0x0;
 	evt.event_type = MDC_NOTI_SCAN_REPORT_FIXED;
-	evt.event_info.length = 98; /*54 bytes + scan_fixed.length(2) + scan_fixed.count(2) + scan.scan_report_no(2) + scan.data_req_id**/
+	evt.event_info.length = 112; /*54 bytes + scan_fixed.length(2) + scan_fixed.count(2) + scan.scan_report_no(2) + scan.data_req_id**/
 
 	scan.data_req_id = 0xF000;
 	scan.scan_report_no = 0;
 
 	scan_fixed.count = 1;
-	scan_fixed.length = 94; /*50 bytes of data + 4 bytes of obs_val_data.length and obj_handle**/
+	scan_fixed.length = 104; /**/
 	scan_fixed.value = measure;
 
 	measure[0].obj_handle = 1;
