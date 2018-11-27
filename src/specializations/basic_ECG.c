@@ -14,14 +14,14 @@ static ConfigObjectList *basic_ECG_get_config_ID0258()
 {
 	ConfigObjectList *std_object_list = malloc(sizeof(ConfigObjectList));
 	std_object_list->count = 1;
-	std_object_list->length = 156;
+	std_object_list->length = 78;
 	std_object_list->value = malloc(sizeof(ConfigObject) * std_object_list->count);
 	std_object_list->value[0].obj_class = MDC_MOC_VMO_METRIC_SA_RT;
 	std_object_list->value[0].obj_handle = 1;
 
 	AttributeList *attr_list1 = malloc(sizeof(AttributeList));
 	attr_list1->count = 7;
-	attr_list1->length = 148;
+	attr_list1->length = 70;
 	attr_list1->value = malloc(attr_list1->count * sizeof(AVA_Type));
 
 	attr_list1->value[0].attribute_id = MDC_ATTR_ID_TYPE;
@@ -53,13 +53,13 @@ static ConfigObjectList *basic_ECG_get_config_ID0258()
 	attr_list1->value[3].attribute_value.value = bsw->buffer;
 
 	attr_list1->value[4].attribute_id = MDC_ATTR_ATTRIBUTE_VAL_MAP;
-	attr_list1->value[4].attribute_value.length = 90;
+	attr_list1->value[4].attribute_value.length = 12;
 	free(bsw);
-	bsw = byte_stream_writer_instance(90);
+	bsw = byte_stream_writer_instance(12);
 	write_intu16(bsw, 2); // AttrValMap.count = 2
 	write_intu16(bsw, 8); // AttrValMap.length = 8
 	write_intu16(bsw, MDC_ATTR_SIMP_SA_OBS_VAL);
-	write_intu32(bsw, 0x00000050);// value length = 80 bytes
+	write_intu16(bsw, 0x0050);// value length = 80 bytes
 	write_intu16(bsw, MDC_ATTR_TIME_STAMP_ABS);
 	write_intu16(bsw, 8); // value length = 8
 	attr_list1->value[4].attribute_value.value = bsw->buffer;
@@ -126,29 +126,29 @@ static DATA_apdu *basic_ECG_populate_event_report(void *edata)
 	//data->message.choice = ROIV_CMIP_CONFIRMED_EVENT_REPORT_CHOSEN;
 	data->message.choice = event_conf_or_unconf_basic_ecg;
 	
-	data->message.length = 122; /***/
+	data->message.length = 74; /*122**/
 
 	evt.obj_handle = 0;
 	//evt.event_time = 0xFFFFFFFF;
 	evt.event_time = 0x0;
 	evt.event_type = MDC_NOTI_SCAN_REPORT_FIXED;
-	evt.event_info.length = 112; /*54 bytes + scan_fixed.length(2) + scan_fixed.count(2) + scan.scan_report_no(2) + scan.data_req_id**/
+	evt.event_info.length = 62; /*110**/
 
 	scan.data_req_id = 0xF000;
 	scan.scan_report_no = 0;
 
 	scan_fixed.count = 1;
-	scan_fixed.length = 104; /***/
+	scan_fixed.length = 56; /*104**/
 	scan_fixed.value = measure;/*do not include this in lengh*/
 
 	measure[0].obj_handle = 1;
-	measure[0].obs_val_data.length = 98; /*90 bytes of samples and 8 bytes of data time*/
+	measure[0].obs_val_data.length = 50; /*98**/
 	ByteStreamWriter *writer0 = byte_stream_writer_instance(measure[0].obs_val_data.length);
 	
 	for (int i = 0; i < 20; i++)
 	{
 		nu_mV = evtdata->mV[i];
-		write_float(writer0, nu_mV);
+		write_intu16(writer0, nu_mV);
 	}
 	
 	//int error;
