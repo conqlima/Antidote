@@ -59,7 +59,7 @@ static ConfigObjectList *basic_ECG_get_config_ID0258()
 	write_intu16(bsw, 2); // AttrValMap.count = 2
 	write_intu16(bsw, 8); // AttrValMap.length = 8
 	write_intu16(bsw, MDC_ATTR_SIMP_SA_OBS_VAL);
-	write_intu16(bsw, 0x0050);// value length = 80 bytes
+	write_intu16(bsw, 0x0029);// value length = 40 bytes of data and 1 byte of extra
 	write_intu16(bsw, MDC_ATTR_TIME_STAMP_ABS);
 	write_intu16(bsw, 8); // value length = 8
 	attr_list1->value[4].attribute_value.value = bsw->buffer;
@@ -102,7 +102,7 @@ static DATA_apdu *basic_ECG_populate_event_report(void *edata)
 	//FLOAT_Type nu_temperature;
 	//FLOAT_Type nu_bmi;
 	//FLOAT_Type *nu_mV;
-	FLOAT_Type nu_mV;
+	octet_string nu_mV;
 	struct basic_ECG_event_report_data *evtdata;
 
 	data = calloc(sizeof(DATA_apdu), 1);
@@ -142,15 +142,11 @@ static DATA_apdu *basic_ECG_populate_event_report(void *edata)
 	scan_fixed.value = measure;/*do not include this in lengh*/
 
 	measure[0].obj_handle = 1;
-	measure[0].obs_val_data.length = 50; /*98**/
+	measure[0].obs_val_data.length = 48; /*40 bytes of data + 8 bytes of date time**/
 	ByteStreamWriter *writer0 = byte_stream_writer_instance(measure[0].obs_val_data.length);
-	
-	for (int i = 0; i < 20; i++)
-	{
-		nu_mV = evtdata->mV[i];
-		write_intu16(writer0, nu_mV);
-	}
-	
+	nu_mV.length = 0x0028;
+	nu_mV.value = evtdata->mV;
+	encode_octet_string(writer0, &nu_mV);
 	//int error;
 	//write_intu8_many(writer0, nu_mV, 20, &error);
 	encode_absolutetime(writer0, &nu_time);
