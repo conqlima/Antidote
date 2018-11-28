@@ -78,7 +78,7 @@ static ConfigObjectList *basic_ECG_get_config_ID0258()
 	attr_list1->value[6].attribute_value.length = 6;
 	free(bsw);
 	bsw = byte_stream_writer_instance(6);
-	write_intu16(bsw, 0x0015); // array size, 21 positions, 42 bytes
+	write_intu16(bsw, 0x0014); // array size, 20 positions, 40 bytes
 	write_intu16(bsw, 0x10ff); // sample type, 16 bits and significant-bits, 255 for signed samples
 	write_intu16(bsw, 0x0123); // Sa flags
 	attr_list1->value[6].attribute_value.value = bsw->buffer;
@@ -142,7 +142,7 @@ static DATA_apdu *basic_ECG_populate_event_report(void *edata)
 	scan_fixed.value = measure;/*do not include this in lengh*/
 
 	measure[0].obj_handle = 1;
-	measure[0].obs_val_data.length = 48; /*40 bytes of data + 8 bytes of date time**/
+	measure[0].obs_val_data.length = 50; /*40 bytes of nu_mV.value + 2 bytes of nu_mV.length + 8 bytes of date time**/
 	ByteStreamWriter *writer0 = byte_stream_writer_instance(measure[0].obs_val_data.length);
 	nu_mV.length = 0x0028;
 	nu_mV.value = evtdata->mV;
