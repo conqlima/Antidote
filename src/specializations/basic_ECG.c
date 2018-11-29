@@ -14,14 +14,14 @@ static ConfigObjectList *basic_ECG_get_config_ID0258()
 {
 	ConfigObjectList *std_object_list = malloc(sizeof(ConfigObjectList));
 	std_object_list->count = 1;
-	std_object_list->length = 78;
+	std_object_list->length = 78; /***/
 	std_object_list->value = malloc(sizeof(ConfigObject) * std_object_list->count);
 	std_object_list->value[0].obj_class = MDC_MOC_VMO_METRIC_SA_RT;
 	std_object_list->value[0].obj_handle = 1;
 
 	AttributeList *attr_list1 = malloc(sizeof(AttributeList));
 	attr_list1->count = 7;
-	attr_list1->length = 70;
+	attr_list1->length = 70; /***/
 	attr_list1->value = malloc(attr_list1->count * sizeof(AVA_Type));
 
 	attr_list1->value[0].attribute_id = MDC_ATTR_ID_TYPE;
@@ -59,10 +59,23 @@ static ConfigObjectList *basic_ECG_get_config_ID0258()
 	write_intu16(bsw, 2); // AttrValMap.count = 2
 	write_intu16(bsw, 8); // AttrValMap.length = 8
 	write_intu16(bsw, MDC_ATTR_SIMP_SA_OBS_VAL);
-	write_intu16(bsw, 0x0029);// value length = 40 bytes of data and 1 byte of extra
+	write_intu16(bsw, 0x002a);// value length = 40 bytes of data and 2 byte of array size
 	write_intu16(bsw, MDC_ATTR_TIME_STAMP_ABS);
 	write_intu16(bsw, 8); // value length = 8
 	attr_list1->value[4].attribute_value.value = bsw->buffer;
+	
+	//attr_list1->value[4].attribute_id = MDC_ATTR_TIME_STAMP_ABS;
+	//attr_list1->value[4].attribute_value.length = 2;
+	//free(bsw);
+	//bsw = byte_stream_writer_instance(2);
+	//write_intu16(bsw, 8); // value length = 8
+
+	//attr_list1->value[5].attribute_id = MDC_ATTR_SIMP_SA_OBS_VAL;
+	//attr_list1->value[5].attribute_value.length = 2;
+	//free(bsw);
+	//bsw = byte_stream_writer_instance(2);
+	//write_intu16(bsw, 0x002a);// value length = 40 bytes of data and 2 byte of array size
+	//attr_list1->value[5].attribute_value.value = bsw->buffer;
 	
 	attr_list1->value[5].attribute_id = MDC_ATTR_SCALE_SPECN_I16;
 	attr_list1->value[5].attribute_value.length = 12;
@@ -125,30 +138,26 @@ static DATA_apdu *basic_ECG_populate_event_report(void *edata)
 
 	//data->message.choice = ROIV_CMIP_CONFIRMED_EVENT_REPORT_CHOSEN;
 	data->message.choice = event_conf_or_unconf_basic_ecg;
-	
-	data->message.length = 74; /*122**/
+	data->message.length = 72; /***/
 
 	evt.obj_handle = 0;
-	//evt.event_time = 0xFFFFFFFF;
 	evt.event_time = 0x0;
 	evt.event_type = MDC_NOTI_SCAN_REPORT_FIXED;
-	evt.event_info.length = 62; /*110**/
+	evt.event_info.length = 62; /***/
 
 	scan.data_req_id = 0xF000;
 	scan.scan_report_no = 0;
 
 	scan_fixed.count = 1;
-	scan_fixed.length = 56; /*104**/
-	scan_fixed.value = measure;/*do not include this in lengh*/
+	scan_fixed.length = 54; /***/
+	scan_fixed.value = measure;/***/
 
 	measure[0].obj_handle = 1;
-	measure[0].obs_val_data.length = 50; /*40 bytes of nu_mV.value + 2 bytes of nu_mV.length + 8 bytes of date time**/
+	measure[0].obs_val_data.length = 50; /***/
 	ByteStreamWriter *writer0 = byte_stream_writer_instance(measure[0].obs_val_data.length);
 	nu_mV.length = 0x0028;
 	nu_mV.value = evtdata->mV;
 	encode_octet_string(writer0, &nu_mV);
-	//int error;
-	//write_intu8_many(writer0, nu_mV, 20, &error);
 	encode_absolutetime(writer0, &nu_time);
 
 	//measure[1].obj_handle = 3;
