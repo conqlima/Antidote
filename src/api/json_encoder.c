@@ -31,10 +31,12 @@
 #include "json_encoder.h"
 #include "api_definitions.h"
 #include "src/util/strbuff.h"
+#include "src/asn1/phd_types.h"
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 #include <stdio.h>
+#include <netinet/in.h>
 
 /**
  * \addtogroup JsonEncoder JSON Encoder
@@ -44,6 +46,32 @@
  *
  * @{
  */
+
+static char retstr[140];
+
+static char* sa_convert_scaled_values2absolute(char* str)
+{
+	int size = strlen(str);
+	char c[10];
+	volatile int i;
+	for (i = 0; i < size; i += 2)
+	{
+		volatile intu16 ret = ntohs(*((intu16 *) str + i));
+		sprintf(c, "%u", ret);
+		volatile float X = (float) atoi(c);
+		
+		//volatile long X_hex = strtol(c, NULL, 16);
+		//char scaled_value[10];
+		//sprintf(scaled_value,"%.3ld", X_hex);
+		//int X_dec = atoi(scaled_value);
+		
+		volatile float M = (2.000-(-2.000))/(800.000-0.000); //0,005
+		volatile float B = 2.000-(M*800.000);// -2
+		volatile float Y = ((M * X) + B);
+		sprintf(retstr, "%s %.3f",retstr,Y);
+	}
+	return retstr;
+}
 
 static void read_entries(DataEntry *values, int size, StringBuffer *sb);
 
@@ -69,7 +97,11 @@ static void describe_simple_entry(SimpleDataEntry *simple, StringBuffer *sb)
 	strbuff_cat(sb, simple->type);
 	strbuff_cat(sb, "\", ");
 	strbuff_cat(sb, "\"value\": \"");
+	if(!strcmp(simple->name,"Simple-Sa-Observed-Value")){
+	strbuff_cat(sb, sa_convert_scaled_values2absolute(simple->value));
+	}else
 	strbuff_cat(sb, simple->value);
+	
 	strbuff_cat(sb, "\"");
 	strbuff_cat(sb, "}");
 }
