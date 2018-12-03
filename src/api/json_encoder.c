@@ -47,29 +47,40 @@
  * @{
  */
 
-static char retstr[140];
+//double M = (2.0-(-2.0))/(800.0-0.0);//0,005
+static const double M = 0.005;
+//double B = 2.0-(M*800.0);//-2
+static const double B = -2.000;
+static char retstr[200];
 
 static char* sa_convert_scaled_values2absolute(char* str)
 {
-	int size = strlen(str);
-	char c[10];
 	volatile int i;
-	for (i = 0; i < size; i += 2)
+	for (i = 0; i < 200; i++)
 	{
-		volatile intu16 ret = ntohs(*((intu16 *) str + i));
+		retstr[i] = '\0';
+	}
+	char c[10];
+
+	for (i = 0; i < 20; i++)
+	{
+		volatile intu16 ret = ntohs(*((intu16 *) (str + (i*2))));
 		sprintf(c, "%u", ret);
-		volatile float X = (float) atoi(c);
+		volatile double X = (double) atoi(c);
 		
 		//volatile long X_hex = strtol(c, NULL, 16);
 		//char scaled_value[10];
 		//sprintf(scaled_value,"%.3ld", X_hex);
 		//int X_dec = atoi(scaled_value);
 		
-		volatile float M = (2.000-(-2.000))/(800.000-0.000); //0,005
-		volatile float B = 2.000-(M*800.000);// -2
-		volatile float Y = ((M * X) + B);
+		//volatile float M = (2.000-(-2.000))/(800.000-0.000); //0,005
+		//volatile float B = 2.000-(M*800.000);// -2
+		volatile double Y = ((M * X) + B);
 		sprintf(retstr, "%s %.3f",retstr,Y);
 	}
+	//
+	//
+	//
 	return retstr;
 }
 
@@ -97,6 +108,7 @@ static void describe_simple_entry(SimpleDataEntry *simple, StringBuffer *sb)
 	strbuff_cat(sb, simple->type);
 	strbuff_cat(sb, "\", ");
 	strbuff_cat(sb, "\"value\": \"");
+	//modified by Robson
 	if(!strcmp(simple->name,"Simple-Sa-Observed-Value")){
 	strbuff_cat(sb, sa_convert_scaled_values2absolute(simple->value));
 	}else

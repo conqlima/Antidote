@@ -183,16 +183,19 @@ char *float2str(float value)
 char *octet_string2str(octet_string *str)
 {
 	char *result = calloc(str->length + 1, sizeof(char));
-
+	char *ret = result;
 	int i = 0;
 
 	for (i = 0; i < str->length; i++) {
+		if (str->value[i] == 0x0){
+		result = result + i+1;
+		}else
 		sprintf(result, "%s%c", result, str->value[i]);
 	}
 
 	result[str->length] = '\0';
 
-	return result;
+	return ret;
 }
 
 /**
