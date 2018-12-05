@@ -187,9 +187,11 @@ char *octet_string2str(octet_string *str)
 	int i = 0;
 
 	for (i = 0; i < str->length; i++) {
+		//0x0 is a non-pritebla character, so go ahead and do not read it
 		if (str->value[i] == 0x0){
+		if (i+1 < str->length)
 		result = result + i+1;
-		}else
+		} else
 		sprintf(result, "%s%c", result, str->value[i]);
 	}
 

@@ -59,7 +59,7 @@ static ConfigObjectList *basic_ECG_get_config_ID0258()
 	write_intu16(bsw, 2); // AttrValMap.count = 2
 	write_intu16(bsw, 8); // AttrValMap.length = 8
 	write_intu16(bsw, MDC_ATTR_SIMP_SA_OBS_VAL);
-	write_intu16(bsw, 0x002a);// value length = 40 bytes of data and 2 byte of array size
+	write_intu16(bsw, 0x00a2);// value length = 160 bytes of data and 2 byte of array size field
 	write_intu16(bsw, MDC_ATTR_TIME_STAMP_ABS);
 	write_intu16(bsw, 8); // value length = 8
 	attr_list1->value[4].attribute_value.value = bsw->buffer;
@@ -138,24 +138,24 @@ static DATA_apdu *basic_ECG_populate_event_report(void *edata)
 
 	//data->message.choice = ROIV_CMIP_CONFIRMED_EVENT_REPORT_CHOSEN;
 	data->message.choice = event_conf_or_unconf_basic_ecg;
-	data->message.length = 72; /***/
+	data->message.length = 192; /***/
 
 	evt.obj_handle = 0;
 	evt.event_time = 0x0;
 	evt.event_type = MDC_NOTI_SCAN_REPORT_FIXED;
-	evt.event_info.length = 62; /***/
+	evt.event_info.length = 182; /***/
 
 	scan.data_req_id = 0xF000;
 	scan.scan_report_no = 0;
 
 	scan_fixed.count = 1;
-	scan_fixed.length = 54; /***/
+	scan_fixed.length = 174; /*54**/
 	scan_fixed.value = measure;/***/
 
 	measure[0].obj_handle = 1;
-	measure[0].obs_val_data.length = 50; /***/
+	measure[0].obs_val_data.length = 170; /* 162 bytes of data + 8 bytes of date data**/
 	ByteStreamWriter *writer0 = byte_stream_writer_instance(measure[0].obs_val_data.length);
-	nu_mV.length = 0x0028;
+	nu_mV.length = 0x00a0;//160 in decimal, size of evtdata->mV
 	nu_mV.value = evtdata->mV;
 	encode_octet_string(writer0, &nu_mV);
 	encode_absolutetime(writer0, &nu_time);

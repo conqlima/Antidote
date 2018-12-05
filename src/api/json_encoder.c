@@ -47,40 +47,39 @@
  * @{
  */
 
-//double M = (2.0-(-2.0))/(800.0-0.0);//0,005
+/*See Scale and range specification example, pg 151, Annex B, from Optimized Exchange Protocol 20601 */
+/*
+ * M = (upper-absolute-value – lower-absolute-value) / (upper-scaled-value – lower-scaled-value) 
+ * B = upper-absolute-value – (M × upper-scaled-value)
+ * */
+
+//(2.0-(-2.0))/(800.0-0.0) = 0,005
 static const double M = 0.005;
-//double B = 2.0-(M*800.0);//-2
+//2.0-(M*800.0) = -2
 static const double B = -2.000;
-static char retstr[200];
+
+static char retstr[700];//used to store the result string (samples strings)
 
 static char* sa_convert_scaled_values2absolute(char* str)
 {
-	volatile int i;
-	for (i = 0; i < 200; i++)
+	int i;
+	//clean the retstr var
+	for (i = 0; i < 700; i++)
 	{
 		retstr[i] = '\0';
 	}
-	char c[10];
-
-	for (i = 0; i < 20; i++)
+	char c[10];//used to store temporary the obtained value
+	double X;
+	double Y;
+	//we have 80 samples trasmitted each time
+	for (i = 0; i < 80; i++)
 	{
-		volatile intu16 ret = ntohs(*((intu16 *) (str + (i*2))));
+		intu16 ret = ntohs(*((intu16 *) (str + (i*2))));
 		sprintf(c, "%u", ret);
-		volatile double X = (double) atoi(c);
-		
-		//volatile long X_hex = strtol(c, NULL, 16);
-		//char scaled_value[10];
-		//sprintf(scaled_value,"%.3ld", X_hex);
-		//int X_dec = atoi(scaled_value);
-		
-		//volatile float M = (2.000-(-2.000))/(800.000-0.000); //0,005
-		//volatile float B = 2.000-(M*800.000);// -2
-		volatile double Y = ((M * X) + B);
+		X = (double) atoi(c);
+		Y = ((M * X) + B);
 		sprintf(retstr, "%s %.3f",retstr,Y);
 	}
-	//
-	//
-	//
 	return retstr;
 }
 

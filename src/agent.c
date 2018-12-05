@@ -140,7 +140,7 @@ void agent_init(ContextId id, CommunicationPlugin **plugins, int config,
 	if (!configuration){
 	configuration_size = nodeNumber;
 	configuration = (AgentConfiguration*) malloc(sizeof(AgentConfiguration)*(nodeNumber+1));
-	//Is the firts time here? so, register!
+	//Is the firts time here? so register!
 	// Register standard configurations for each specialization.
 	std_configurations_register_conf(
 		blood_pressure_monitor_create_std_config_ID02BC());
@@ -156,7 +156,6 @@ void agent_init(ContextId id, CommunicationPlugin **plugins, int config,
 		thermometer_create_std_config_ID0320());
 	std_configurations_register_conf(
 		basic_ECG_create_std_config_ID0258());
-	//mudar aqui
 	}else if (nodeNumber > configuration_size){
 	configuration_size = nodeNumber;
 	configuration = (AgentConfiguration*) realloc(configuration, sizeof(AgentConfiguration)*(nodeNumber+1));

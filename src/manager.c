@@ -173,7 +173,7 @@ void manager_init(ContextId id, CommunicationPlugin **plugins)
 	communication_add_state_transition_listener(id, fsm_state_size, &manager_handle_transition_evt);
 	communication_set_connection_listeners(&manager_notify_evt_device_connected,
 						&manager_notify_evt_device_disconnected);
-
+	// this part of code was transferred to agent.c
 	// Register standard configurations for each specialization.
 	// (comment these if you want to test acquisition of extended
 	// configurations)

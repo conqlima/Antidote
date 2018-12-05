@@ -51,7 +51,6 @@ struct StdConfiguration *basic_ECG_create_std_config_ID0258();
  * Event report data, used in Agent role
  */
 struct basic_ECG_event_report_data {
-	//FLOAT_Type mV[20];
 	intu8 *mV;
 	int century;
 	int year;
