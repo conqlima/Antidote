@@ -183,21 +183,29 @@ char *float2str(float value)
 char *octet_string2str(octet_string *str)
 {
 	char *result = calloc(str->length + 1, sizeof(char));
-	char *ret = result;
+	int *is_null = calloc(str->length, sizeof(int));
+	int is_null_count = 0;
 	int i = 0;
 
 	for (i = 0; i < str->length; i++) {
-		//0x0 is a non-pritebla character, so go ahead and do not read it
+		/*the null character is not printed by sprintf
+		 * so we take it position and later replaced
+		 * with 0x00*/
 		if (str->value[i] == 0x0){
-		if (i+1 < str->length)
-		result = result + i+1;
-		} else
+			is_null[is_null_count] = i;
+			is_null_count++;
+			sprintf(result, "%s%d", result, str->value[i]);
+		}
 		sprintf(result, "%s%c", result, str->value[i]);
 	}
-
+	for (i = 0; i < is_null_count; i++)
+	{
+		result[is_null[i]] = 0x00;
+	}
+	
 	result[str->length] = '\0';
-
-	return ret;
+	free(is_null);
+	return result;
 }
 
 /**

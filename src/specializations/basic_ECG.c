@@ -201,6 +201,7 @@ static DATA_apdu *basic_ECG_populate_event_report(void *edata)
 	data->message.u.roiv_cmipEventReport = evt;
 
 	del_byte_stream_writer(scan_writer, 0);
+	free(evtdata->mV);
 
 	return data;
 }

@@ -55,14 +55,14 @@
 
 //(2.0-(-2.0))/(800.0-0.0) = 0,005
 static const double M = 0.005;
-//2.0-(M*800.0) = -2
+////2.0-(M*800.0) = -2
 static const double B = -2.000;
 
 static char retstr[700];//used to store the result string (samples strings)
 
 static char* sa_convert_scaled_values2absolute(char* str)
 {
-	int i;
+	int i = 0;
 	//clean the retstr var
 	for (i = 0; i < 700; i++)
 	{
