@@ -189,7 +189,7 @@ char *octet_string2str(octet_string *str)
 
 	for (i = 0; i < str->length; i++) {
 		/*the null character is not printed by sprintf
-		 * so we take it position and later replaced
+		 * so we take it position and later replaced again
 		 * with 0x00*/
 		if (str->value[i] == 0x0){
 			is_null[is_null_count] = i;
