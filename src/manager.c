@@ -114,41 +114,33 @@ static ManagerListener *manager_listener_list = NULL;
  */
 static int manager_listener_count = 0;
 
-static void manager_handle_transition_evt(Context *ctx, fsm_states previous, fsm_states next);
+static void manager_handle_transition_evt(Context * ctx, fsm_states previous,
+        fsm_states next);
 
 
-/*! \mainpage Antidote: IEEE 11073-20601 Implementation
- *
- * This API implements the IEEE 11073-20601 Standard and some device
- * specializations (IEEE 11073-104XX).
- *
- * The IEEE 11073-20601 defines a common framework for making an abstract
- * model of personal health data available in transport-independent
- * transfer syntax required to establish logical connections between
- * systems and to provide presentation capabilities and services needed
- * to perform communication tasks. The protocol is optimized to personal
- * health usage requirements and leverages commonly used methods and
- * tools wherever possible.
- *
- * The ISO/IEEE 11073 family of standards is based on an object-oriented
- * systems management paradigm. Data (measurement, state, and so on) are
- * modeled in the form of information objects that are accessed and
- * manipulated using an object access service protocol.
- *
- * The overall ISO/IEEE 11073 system model is divided into three principal
- * components: the DIM, the service model, and the communications model.
- * These three models work together to represent data, define data access and
- * command methodologies, and communicate the data from an agent to a manager.
- *
- * For more information about how to use IEEE standard implementation, see \ref Manager
- * implementation (including examples).
- *
- * For more information about how to add new device specializations at IEEE library
- * , see documentation on \ref SpecializationDescription "IEEE device specializations"
- */
+/* ! \mainpage Antidote: IEEE 11073-20601 Implementation This API implements
+   the IEEE 11073-20601 Standard and some device specializations (IEEE
+   11073-104XX). The IEEE 11073-20601 defines a common framework for making
+   an abstract model of personal health data available in
+   transport-independent transfer syntax required to establish logical
+   connections between systems and to provide presentation capabilities and
+   services needed to perform communication tasks. The protocol is optimized
+   to personal health usage requirements and leverages commonly used methods
+   and tools wherever possible. The ISO/IEEE 11073 family of standards is
+   based on an object-oriented systems management paradigm. Data (measurement,
+   state, and so on) are modeled in the form of information objects that are
+   accessed and manipulated using an object access service protocol. The
+   overall ISO/IEEE 11073 system model is divided into three principal
+   components: the DIM, the service model, and the communications model. These
+   three models work together to represent data, define data access and
+   command methodologies, and communicate the data from an agent to a manager.
+   For more information about how to use IEEE standard implementation, see \ref
+   Manager implementation (including examples). For more information about how
+   to add new device specializations at IEEE library , see documentation on \ref
+   SpecializationDescription "IEEE device specializations" */
 
-int manager_notify_evt_device_connected(Context *ctx, const char *addr);
-int manager_notify_evt_device_disconnected(Context *ctx, const char *addr);
+int manager_notify_evt_device_connected(Context * ctx, const char *addr);
+int manager_notify_evt_device_disconnected(Context * ctx, const char *addr);
 
 /**
  * Initializes the manager on application load. This function also
@@ -158,38 +150,42 @@ int manager_notify_evt_device_disconnected(Context *ctx, const char *addr);
  *
  * @param plugins the configured communication plugins
  */
-void manager_init(ContextId id, CommunicationPlugin **plugins)
+//Modified for Castalia Simulator
+void manager_init(ContextId id, CommunicationPlugin ** plugins)
 {
-	DEBUG("Manager Initialization");
+    DEBUG("Manager Initialization");
 
-	//while (*plugins) {
-	if (*plugins) {
-		(*plugins)->type |= MANAGER_CONTEXT;
-		communication_add_plugin(id, (*plugins));
-		++plugins;
-	}
+    // while (*plugins) {
+    if (*plugins)
+    {
+        (*plugins)->type |= MANAGER_CONTEXT;
+        communication_add_plugin(id, (*plugins));
+        ++plugins;
+    }
 
-	// Listen to all communication state transitions
-	communication_add_state_transition_listener(id, fsm_state_size, &manager_handle_transition_evt);
-	communication_set_connection_listeners(&manager_notify_evt_device_connected,
-						&manager_notify_evt_device_disconnected);
-	// this part of code was transferred to agent.c
-	// Register standard configurations for each specialization.
-	// (comment these if you want to test acquisition of extended
-	// configurations)
-	//std_configurations_register_conf(
-		//blood_pressure_monitor_create_std_config_ID02BC());
-	//std_configurations_register_conf(
-		//pulse_oximeter_create_std_config_ID0190());
-	//std_configurations_register_conf(
-		//pulse_oximeter_create_std_config_ID0191());
-	//std_configurations_register_conf(
-		//weighting_scale_create_std_config_ID05DC());
-	//std_configurations_register_conf(
-		//glucometer_create_std_config_ID06A4());
+    // Listen to all communication state transitions
+    communication_add_state_transition_listener(id, fsm_state_size,
+            &manager_handle_transition_evt);
+    communication_set_connection_listeners
+    (&manager_notify_evt_device_connected,
+     &manager_notify_evt_device_disconnected);
+    // this part of code was transferred to agent.c
+    // Register standard configurations for each specialization.
+    // (comment these if you want to test acquisition of extended
+    // configurations)
+    // std_configurations_register_conf(
+    // blood_pressure_monitor_create_std_config_ID02BC());
+    // std_configurations_register_conf(
+    // pulse_oximeter_create_std_config_ID0190());
+    // std_configurations_register_conf(
+    // pulse_oximeter_create_std_config_ID0191());
+    // std_configurations_register_conf(
+    // weighting_scale_create_std_config_ID05DC());
+    // std_configurations_register_conf(
+    // glucometer_create_std_config_ID06A4());
 
-	// Load Configurations File
-	ext_configurations_load_configurations();
+    // Load Configurations File
+    ext_configurations_load_configurations();
 
 }
 
@@ -199,19 +195,20 @@ void manager_init(ContextId id, CommunicationPlugin **plugins)
  * This method should be invoked in a thread safe execution.
  *
  */
+//Modified for Castalia Simulator
 void manager_finalize(ContextId id)
 {
-	DEBUG("Manager Finalization");
-
-	/*Essa função deveria ser chamada apenas no arquivo
-	 * agent.c, mas foi colocada aqui para ser chamada
-	 * apenas uma vez. No arquivo agent.c ela seria chamada
-	 * várias vezes, ocasionando erro de memória*/
-	ext_configurations_destroy();
-	std_configurations_destroy();
-	communication_finalize(id);
-	agent_remove_all_listeners();
-	manager_remove_all_listeners();
+    DEBUG("Manager Finalization");
+    ext_configurations_destroy();
+    std_configurations_destroy();
+    communication_finalize(id);
+    /**
+    * This function should only be called in the agent.c file,
+    * but was placed here to be called only once.
+    * In the agent.c file it would be called multiple times,
+    * causing memory error.*/
+    agent_remove_all_listeners();
+    manager_remove_all_listeners();
 }
 
 
@@ -223,34 +220,38 @@ void manager_finalize(ContextId id)
  * @param listener the listener to be added.
  * @return 1 if operation succeeds, 0 if not.
  */
+//Modified for Castalia Simulator
 int manager_add_listener(ContextId id, ManagerListener listener)
 {
 
-	// test if there is not elements in the list
-	unsigned int size = manager_listener_count;
-	if (size == 0) {
-		manager_listener_list = malloc(sizeof(struct ManagerListener));
+    // test if there is not elements in the list
+    unsigned int size = manager_listener_count;
+    if (size == 0)
+    {
+        manager_listener_list = malloc(sizeof(struct ManagerListener));
 
-	}
-	// change the list size
-	if (size < id.plugin) { 
-		manager_listener_list = realloc(manager_listener_list,
-						sizeof(struct ManagerListener)
-						* (id.plugin + 1));
-		manager_listener_count = id.plugin;
-	}
+    }
+    // change the list size
+    if (size < id.plugin)
+    {
+        manager_listener_list = realloc(manager_listener_list,
+                                        sizeof(struct ManagerListener)
+                                        * (id.plugin + 1));
+        manager_listener_count = id.plugin;
+    }
 
-	// add element to list
+    // add element to list
 
-	if (manager_listener_list == NULL) {
-		return 0;
-	}
+    if (manager_listener_list == NULL)
+    {
+        return 0;
+    }
 
-	manager_listener_list[id.plugin] = listener;
+    manager_listener_list[id.plugin] = listener;
 
-	//manager_listener_count++;
+    // manager_listener_count++;
 
-	return 1;
+    return 1;
 
 }
 
@@ -262,11 +263,12 @@ int manager_add_listener(ContextId id, ManagerListener listener)
  */
 void manager_remove_all_listeners()
 {
-	if (manager_listener_list != NULL) {
-		manager_listener_count = 0;
-		free(manager_listener_list);
-		manager_listener_list = NULL;
-	}
+    if (manager_listener_list != NULL)
+    {
+        manager_listener_count = 0;
+        free(manager_listener_list);
+        manager_listener_list = NULL;
+    }
 }
 
 /**
@@ -278,22 +280,24 @@ void manager_remove_all_listeners()
  * @param data_list with association information and configuration
  * @return 1 if any listener catches the notification, 0 if not
  */
-int manager_notify_evt_device_available(Context *ctx, DataList *data_list)
+//Modified for Castalia Simulator
+int manager_notify_evt_device_available(Context * ctx, DataList * data_list)
 {
-	int ret_val = 0;
-	//int i;
+    int ret_val = 0;
+    // int i;
 
-	//for (i = 0; i < manager_listener_count; i++) {
-		ManagerListener *l = &manager_listener_list[ctx->id.plugin];
+    // for (i = 0; i < manager_listener_count; i++) {
+    ManagerListener *l = &manager_listener_list[ctx->id.plugin];
 
-		if (l != NULL && l->device_available != NULL) {
-			(l->device_available)(ctx, data_list);
-			ret_val = 1;
-		}
-	//}
+    if (l != NULL && l->device_available != NULL)
+    {
+        (l->device_available) (ctx, data_list);
+        ret_val = 1;
+    }
+    // }
 
-	data_list_del(data_list);
-	return ret_val;
+    data_list_del(data_list);
+    return ret_val;
 }
 
 /**
@@ -304,21 +308,23 @@ int manager_notify_evt_device_available(Context *ctx, DataList *data_list)
  * @param ctx
  * @return 1 if any listener catches the notification, 0 if not
  */
-int manager_notify_evt_device_unavailable(Context *ctx)
+//Modified for Castalia Simulator
+int manager_notify_evt_device_unavailable(Context * ctx)
 {
-	int ret_val = 0;
-	//int i;
+    int ret_val = 0;
+    // int i;
 
-	//for (i = 0; i < manager_listener_count; i++) {
-		ManagerListener *l = &manager_listener_list[ctx->id.plugin];
+    // for (i = 0; i < manager_listener_count; i++) {
+    ManagerListener *l = &manager_listener_list[ctx->id.plugin];
 
-		if (l != NULL && l->device_unavailable != NULL) {
-			(l->device_unavailable)(ctx);
-			ret_val = 1;
-		}
-	//}
+    if (l != NULL && l->device_unavailable != NULL)
+    {
+        (l->device_unavailable) (ctx);
+        ret_val = 1;
+    }
+    // }
 
-	return ret_val;
+    return ret_val;
 }
 
 /**
@@ -330,21 +336,23 @@ int manager_notify_evt_device_unavailable(Context *ctx)
  * @param addr
  * @return 1 if any listener catches the notification, 0 if not
  */
-int manager_notify_evt_device_connected(Context *ctx, const char *addr)
+//Modified for Castalia Simulator
+int manager_notify_evt_device_connected(Context * ctx, const char *addr)
 {
-	int ret_val = 0;
-	//int i;
+    int ret_val = 0;
+    // int i;
 
-	//for (i = 0; i < manager_listener_count; i++) {
-		ManagerListener *l = &manager_listener_list[ctx->id.plugin];
+    // for (i = 0; i < manager_listener_count; i++) {
+    ManagerListener *l = &manager_listener_list[ctx->id.plugin];
 
-		if (l != NULL && l->device_connected != NULL) {
-			(l->device_connected)(ctx, addr);
-			ret_val = 1;
-		}
-	//}
+    if (l != NULL && l->device_connected != NULL)
+    {
+        (l->device_connected) (ctx, addr);
+        ret_val = 1;
+    }
+    // }
 
-	return ret_val;
+    return ret_val;
 }
 
 /**
@@ -356,21 +364,23 @@ int manager_notify_evt_device_connected(Context *ctx, const char *addr)
  * @param addr
  * @return 1 if any listener catches the notification, 0 if not
  */
-int manager_notify_evt_device_disconnected(Context *ctx, const char *addr)
+//Modified for Castalia Simulator
+int manager_notify_evt_device_disconnected(Context * ctx, const char *addr)
 {
-	int ret_val = 0;
-	//int i;
+    int ret_val = 0;
+    // int i;
 
-	//for (i = 0; i < manager_listener_count; i++) {
-		ManagerListener *l = &manager_listener_list[ctx->id.plugin];
+    // for (i = 0; i < manager_listener_count; i++) {
+    ManagerListener *l = &manager_listener_list[ctx->id.plugin];
 
-		if (l != NULL && l->device_disconnected != NULL) {
-			(l->device_disconnected)(ctx, addr);
-			ret_val = 1;
-		}
-	//}
+    if (l != NULL && l->device_disconnected != NULL)
+    {
+        (l->device_disconnected) (ctx, addr);
+        ret_val = 1;
+    }
+    // }
 
-	return ret_val;
+    return ret_val;
 }
 
 /**
@@ -382,22 +392,25 @@ int manager_notify_evt_device_disconnected(Context *ctx, const char *addr)
  * @param data_list with the measured data.
  * @return 1 if any listener catches the notification, 0 if not
  */
-int manager_notify_evt_measurement_data_updated(Context *ctx, DataList *data_list)
+//Modified for Castalia Simulator
+int manager_notify_evt_measurement_data_updated(Context * ctx,
+        DataList * data_list)
 {
-	int ret_val = 0;
-	//int i;
+    int ret_val = 0;
+    // int i;
 
-	//for (i = 0; i < manager_listener_count; i++) {
-		ManagerListener *l = &manager_listener_list[ctx->id.plugin];
+    // for (i = 0; i < manager_listener_count; i++) {
+    ManagerListener *l = &manager_listener_list[ctx->id.plugin];
 
-		if (l != NULL && l->measurement_data_updated != NULL) {
-			(l->measurement_data_updated)(ctx, data_list);
-			ret_val = 1;
-		}
-	//}
+    if (l != NULL && l->measurement_data_updated != NULL)
+    {
+        (l->measurement_data_updated) (ctx, data_list);
+        ret_val = 1;
+    }
+    // }
 
-	data_list_del(data_list);
-	return ret_val;
+    data_list_del(data_list);
+    return ret_val;
 
 }
 
@@ -412,28 +425,30 @@ int manager_notify_evt_measurement_data_updated(Context *ctx, DataList *data_lis
  * @param data_list with the segment data. Ownership is transferred; delete with data_list_del.
  * @return 1 if any listener catches the notification, 0 if not
  */
-int manager_notify_evt_segment_data(Context *ctx, int handle, int instnumber,
-							DataList *data_list)
+//Modified for Castalia Simulator
+int manager_notify_evt_segment_data(Context * ctx, int handle, int instnumber,
+                                    DataList * data_list)
 {
-	int ret_val = 0;
-	//int i;
+    int ret_val = 0;
+    // int i;
 
-	//for (i = 0; i < manager_listener_count; i++) {
-		ManagerListener *l = &manager_listener_list[ctx->id.plugin];
+    // for (i = 0; i < manager_listener_count; i++) {
+    ManagerListener *l = &manager_listener_list[ctx->id.plugin];
 
-		if (l && l->segment_data_received) {
-			(l->segment_data_received)(ctx, handle, instnumber, data_list);
-			ret_val = 1;
-		}
-	//}
+    if (l && l->segment_data_received)
+    {
+        (l->segment_data_received) (ctx, handle, instnumber, data_list);
+        ret_val = 1;
+    }
+    // }
 
-	// Since encoding this may take a lot of time, we pass ownership to
-	// listeners. If there is more than one in app, it must make a deep
-	// copy of DataList or coordinate between listeners to free in time.
+    // Since encoding this may take a lot of time, we pass ownership to
+    // listeners. If there is more than one in app, it must make a deep
+    // copy of DataList or coordinate between listeners to free in time.
 
-	// data_list_del(data_list);
+    // data_list_del(data_list);
 
-	return ret_val;
+    return ret_val;
 }
 
 /**
@@ -444,21 +459,23 @@ int manager_notify_evt_segment_data(Context *ctx, int handle, int instnumber,
  * @param ctx current context
  * @return 1 if any listener catches the notification, 0 if not
  */
-int manager_notify_evt_timeout(Context *ctx)
+int manager_notify_evt_timeout(Context * ctx)
 {
-	int ret_val = 0;
-	int i;
+    int ret_val = 0;
+    int i;
 
-	for (i = 0; i < manager_listener_count; i++) {
-		ManagerListener *l = &manager_listener_list[i];
+    for (i = 0; i < manager_listener_count; i++)
+    {
+        ManagerListener *l = &manager_listener_list[i];
 
-		if (l != NULL && l->timeout != NULL) {
-			(l->timeout)(ctx);
-			ret_val = 1;
-		}
-	}
+        if (l != NULL && l->timeout != NULL)
+        {
+            (l->timeout) (ctx);
+            ret_val = 1;
+        }
+    }
 
-	return ret_val;
+    return ret_val;
 }
 
 /**
@@ -466,29 +483,35 @@ int manager_notify_evt_timeout(Context *ctx)
  * is initialized and the communication will be ready to
  * read/send data.
  */
+//Modified for Castalia Simulator
 void manager_start(ContextId id)
 {
-	// kill any previous connection
-	if (communication_is_network_started(id)) {
-		DEBUG("Manager restarting...");
-		manager_stop(id);
-	} else {
-		DEBUG("Manager starting...");
-	}
+    // kill any previous connection
+    if (communication_is_network_started(id))
+    {
+        DEBUG("Manager restarting...");
+        manager_stop(id);
+    }
+    else
+    {
+        DEBUG("Manager starting...");
+    }
 
-	communication_network_start(id);
+    communication_network_start(id);
 }
 
 
 /**
  * Stop to listen agents, all open network connections will be closed
  */
+//Modified for Castalia Simulator
 void manager_stop(ContextId id)
 {
-	if (communication_is_network_started(id)) {
-		DEBUG("Manager stopping...");
-		communication_network_stop(id);
-	}
+    if (communication_is_network_started(id))
+    {
+        DEBUG("Manager stopping...");
+        communication_network_stop(id);
+    }
 }
 
 /**
@@ -496,17 +519,18 @@ void manager_stop(ContextId id)
  * This function must run after 'manager_start()' operation if
  * no event loop framework is used e.g. GLib. It is meant for
  * simple tests only.
- * 
+ *
  * @param context_id Current context.
  */
 void manager_connection_loop(ContextId context_id)
 {
-	Context *ctx;
-	while ((ctx = context_get_and_lock(context_id))) {
-		DEBUG("looping");
-		communication_connection_loop(ctx);
-		context_unlock(ctx);
-	}
+    Context *ctx;
+    while ((ctx = context_get_and_lock(context_id)))
+    {
+        DEBUG("looping");
+        communication_connection_loop(ctx);
+        context_unlock(ctx);
+    }
 }
 
 /**
@@ -515,16 +539,17 @@ void manager_connection_loop(ContextId context_id)
  */
 void manager_request_association_release(ContextId id)
 {
-	FSMEventData evt;
+    FSMEventData evt;
 
-	evt.choice = FSM_EVT_DATA_RELEASE_REQUEST_REASON;
-	evt.u.release_request_reason = RELEASE_REQUEST_REASON_NORMAL;
+    evt.choice = FSM_EVT_DATA_RELEASE_REQUEST_REASON;
+    evt.u.release_request_reason = RELEASE_REQUEST_REASON_NORMAL;
 
-	Context *ctx = context_get_and_lock(id);
-	if (ctx) {
-		communication_fire_evt(ctx, fsm_evt_req_assoc_rel, &evt);
-		context_unlock(ctx);
-	}
+    Context *ctx = context_get_and_lock(id);
+    if (ctx)
+    {
+        communication_fire_evt(ctx, fsm_evt_req_assoc_rel, &evt);
+        context_unlock(ctx);
+    }
 }
 
 /**
@@ -533,12 +558,13 @@ void manager_request_association_release(ContextId id)
  */
 void manager_request_association_abort(ContextId id)
 {
-	Context *ctx = context_get_and_lock(id);
+    Context *ctx = context_get_and_lock(id);
 
-	if (ctx) {
-		communication_fire_evt(ctx, fsm_evt_req_assoc_abort, NULL);
-		context_unlock(ctx);
-	}
+    if (ctx)
+    {
+        communication_fire_evt(ctx, fsm_evt_req_assoc_abort, NULL);
+        context_unlock(ctx);
+    }
 }
 
 
@@ -553,22 +579,27 @@ void manager_request_association_abort(ContextId id)
  * @return pointer to request sent
  */
 Request *manager_set_operational_state_of_the_scanner(ContextId id,
-		ASN1_HANDLE handle, OperationalState state,
-		service_request_callback callback)
+        ASN1_HANDLE handle,
+        OperationalState state,
+        service_request_callback
+        callback)
 {
-	Context *ctx = context_get_and_lock(id);
+    Context *ctx = context_get_and_lock(id);
 
-	if (ctx != NULL) {
-		// thread-safe block - start
+    if (ctx != NULL)
+    {
+        // thread-safe block - start
 
-		Request *req = mds_set_operational_state_of_the_scanner(ctx, handle, state, callback);
+        Request *req =
+            mds_set_operational_state_of_the_scanner(ctx, handle, state,
+                    callback);
 
-		context_unlock(ctx);
-		// thread-safe block - end
-		return req;
-	}
+        context_unlock(ctx);
+        // thread-safe block - end
+        return req;
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /**
@@ -579,24 +610,25 @@ Request *manager_set_operational_state_of_the_scanner(ContextId id,
  */
 DataList *manager_get_configuration(ContextId id)
 {
-	Context *ctx = context_get_and_lock(id);
+    Context *ctx = context_get_and_lock(id);
 
-	if (!ctx)
-		return NULL;
+    if (!ctx)
+        return NULL;
 
-	MDS *mds = ctx->mds;
+    MDS *mds = ctx->mds;
 
-	if (!mds) {
-		ERROR("No MDS data is available");
-		context_unlock(ctx);
-		return NULL;
-	}
+    if (!mds)
+    {
+        ERROR("No MDS data is available");
+        context_unlock(ctx);
+        return NULL;
+    }
 
-	DataList *list = mds_populate_configuration(mds);
+    DataList *list = mds_populate_configuration(mds);
 
-	context_unlock(ctx);
+    context_unlock(ctx);
 
-	return list;
+    return list;
 }
 
 /**
@@ -607,32 +639,35 @@ DataList *manager_get_configuration(ContextId id)
  */
 DataList *manager_get_mds_attributes(ContextId id)
 {
-	Context *ctx = context_get_and_lock(id);
+    Context *ctx = context_get_and_lock(id);
 
-	if (ctx != NULL) {
-		MDS *mds = ctx->mds;
+    if (ctx != NULL)
+    {
+        MDS *mds = ctx->mds;
 
-		if (mds == NULL) {
-			ERROR("No MDS data is available");
-			context_unlock(ctx);
-			return NULL;
-		}
+        if (mds == NULL)
+        {
+            ERROR("No MDS data is available");
+            context_unlock(ctx);
+            return NULL;
+        }
 
-		DataList *list = data_list_new(1);
+        DataList *list = data_list_new(1);
 
-		if (list == NULL) {
-			context_unlock(ctx);
-			return NULL;
-		}
+        if (list == NULL)
+        {
+            context_unlock(ctx);
+            return NULL;
+        }
 
-		mds_populate_attributes(mds, &list->values[0]);
+        mds_populate_attributes(mds, &list->values[0]);
 
-		context_unlock(ctx);
+        context_unlock(ctx);
 
-		return list;
-	}
+        return list;
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /**
@@ -643,28 +678,30 @@ DataList *manager_get_mds_attributes(ContextId id)
  * @param callback
  * @return pointer to request sent
  */
-Request *manager_request_measurement_data_transmission(ContextId id, service_request_callback callback)
+Request *manager_request_measurement_data_transmission(ContextId id,
+        service_request_callback
+        callback)
 {
 
-	Context *ctx = context_get_and_lock(id);
+    Context *ctx = context_get_and_lock(id);
 
-	if (ctx != NULL) {
-		// thread-safe block - start
+    if (ctx != NULL)
+    {
+        // thread-safe block - start
 
-		DataReqMode mode = DATA_REQ_START_STOP
-				   | DATA_REQ_SUPP_SCOPE_CLASS
-				   | DATA_REQ_SUPP_MODE_SINGLE_RSP;
-		OID_Type class_id = MDC_MOC_VMO_METRIC_NU;
-		Request *req = mds_service_action_data_request(ctx, mode, &class_id,
-				NULL, callback);
+        DataReqMode mode = DATA_REQ_START_STOP
+                           | DATA_REQ_SUPP_SCOPE_CLASS | DATA_REQ_SUPP_MODE_SINGLE_RSP;
+        OID_Type class_id = MDC_MOC_VMO_METRIC_NU;
+        Request *req = mds_service_action_data_request(ctx, mode, &class_id,
+                       NULL, callback);
 
-		context_unlock(ctx);
-		// thread-safe block - end
+        context_unlock(ctx);
+        // thread-safe block - end
 
-		return req;
-	}
+        return req;
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /**
@@ -674,22 +711,25 @@ Request *manager_request_measurement_data_transmission(ContextId id, service_req
  * @param callback
  * @return pointer to request sent
  */
-Request *manager_request_get_all_mds_attributes(ContextId id, service_request_callback callback)
+Request *manager_request_get_all_mds_attributes(ContextId id,
+        service_request_callback
+        callback)
 {
 
-	Context *ctx = context_get_and_lock(id);
+    Context *ctx = context_get_and_lock(id);
 
-	if (ctx != NULL) {
-		// thread-safe block - start
+    if (ctx != NULL)
+    {
+        // thread-safe block - start
 
-		Request *req = mds_service_get(ctx, NULL, 0, callback);
+        Request *req = mds_service_get(ctx, NULL, 0, callback);
 
-		context_unlock(ctx);
-		// thread-safe block - end
-		return req;
-	}
+        context_unlock(ctx);
+        // thread-safe block - end
+        return req;
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /**
@@ -701,21 +741,22 @@ Request *manager_request_get_all_mds_attributes(ContextId id, service_request_ca
  * @return pointer to request sent
  */
 Request *manager_request_get_pmstore(ContextId id, int handle,
-					service_request_callback callback)
+                                     service_request_callback callback)
 {
-	Context *ctx = context_get_and_lock(id);
+    Context *ctx = context_get_and_lock(id);
 
-	if (ctx != NULL) {
-		// thread-safe block - start
+    if (ctx != NULL)
+    {
+        // thread-safe block - start
 
-		Request *req = mds_get_pmstore(ctx, handle, callback);
+        Request *req = mds_get_pmstore(ctx, handle, callback);
 
-		context_unlock(ctx);
-		// thread-safe block - end
-		return req;
-	}
+        context_unlock(ctx);
+        // thread-safe block - end
+        return req;
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /**
@@ -727,22 +768,23 @@ Request *manager_request_get_pmstore(ContextId id, int handle,
  * @return pointer to request sent
  */
 Request *manager_request_get_segment_info(ContextId id, int handle,
-				service_request_callback callback)
+        service_request_callback callback)
 {
-	Context *ctx = context_get_and_lock(id);
+    Context *ctx = context_get_and_lock(id);
 
-	if (ctx != NULL) {
-		// thread-safe block - start
+    if (ctx != NULL)
+    {
+        // thread-safe block - start
 
-		Request *req;
-		req = mds_service_get_segment_info(ctx, handle, callback);
+        Request *req;
+        req = mds_service_get_segment_info(ctx, handle, callback);
 
-		context_unlock(ctx);
-		// thread-safe block - end
-		return req;
-	}
+        context_unlock(ctx);
+        // thread-safe block - end
+        return req;
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /**
@@ -755,23 +797,25 @@ Request *manager_request_get_segment_info(ContextId id, int handle,
  * @return pointer to request sent
  */
 Request *manager_request_get_segment_data(ContextId id,
-					int handle,
-					int instnumber,
-					service_request_callback callback)
+        int handle,
+        int instnumber,
+        service_request_callback callback)
 {
-	Context *ctx = context_get_and_lock(id);
+    Context *ctx = context_get_and_lock(id);
 
-	if (ctx != NULL) {
-		// thread-safe block - start
+    if (ctx != NULL)
+    {
+        // thread-safe block - start
 
-		Request *req = mds_service_get_segment_data(ctx, handle, instnumber, callback);
+        Request *req =
+            mds_service_get_segment_data(ctx, handle, instnumber, callback);
 
-		context_unlock(ctx);
-		// thread-safe block - end
-		return req;
-	}
+        context_unlock(ctx);
+        // thread-safe block - end
+        return req;
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /**
@@ -783,23 +827,24 @@ Request *manager_request_get_segment_data(ContextId id,
  * @return pointer to request sent
  */
 Request *manager_request_clear_segments(ContextId id,
-					int handle,
-					service_request_callback callback)
+                                        int handle,
+                                        service_request_callback callback)
 {
-	Context *ctx = context_get_and_lock(id);
+    Context *ctx = context_get_and_lock(id);
 
-	if (ctx != NULL) {
+    if (ctx != NULL)
+    {
 
-		// thread-safe block - start
+        // thread-safe block - start
 
-		Request *req = mds_service_clear_segment(ctx, handle, -1, callback);
+        Request *req = mds_service_clear_segment(ctx, handle, -1, callback);
 
-		context_unlock(ctx);
-		// thread-safe block - end
-		return req;
-	}
+        context_unlock(ctx);
+        // thread-safe block - end
+        return req;
+    }
 
-	return NULL;
+    return NULL;
 }
 
 
@@ -813,24 +858,26 @@ Request *manager_request_clear_segments(ContextId id,
  * @return pointer to request sent
  */
 Request *manager_request_clear_segment(ContextId id,
-					int handle,
-					int instnumber,
-					service_request_callback callback)
+                                       int handle,
+                                       int instnumber,
+                                       service_request_callback callback)
 {
-	Context *ctx = context_get_and_lock(id);
+    Context *ctx = context_get_and_lock(id);
 
-	if (ctx != NULL) {
+    if (ctx != NULL)
+    {
 
-		// thread-safe block - start
+        // thread-safe block - start
 
-		Request *req = mds_service_clear_segment(ctx, handle, instnumber, callback);
+        Request *req =
+            mds_service_clear_segment(ctx, handle, instnumber, callback);
 
-		context_unlock(ctx);
-		// thread-safe block - end
-		return req;
-	}
+        context_unlock(ctx);
+        // thread-safe block - end
+        return req;
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /**
@@ -841,25 +888,27 @@ Request *manager_request_clear_segment(ContextId id,
  * @param callback
  * @return pointer to request sent
  */
-Request *manager_set_time(ContextId id, time_t time, service_request_callback callback)
+Request *manager_set_time(ContextId id, time_t time,
+                          service_request_callback callback)
 {
-	Context *ctx = context_get_and_lock(id);
+    Context *ctx = context_get_and_lock(id);
 
-	if (ctx != NULL) {
-		// thread-safe block - start
-		SetTimeInvoke sttime;
-		sttime.date_time = date_util_create_absolute_time_t(time);
-		sttime.accuracy = 0;
+    if (ctx != NULL)
+    {
+        // thread-safe block - start
+        SetTimeInvoke sttime;
+        sttime.date_time = date_util_create_absolute_time_t(time);
+        sttime.accuracy = 0;
 
-		Request *req = mds_service_action_set_time(ctx, &sttime, callback);
+        Request *req = mds_service_action_set_time(ctx, &sttime, callback);
 
-		context_unlock(ctx);
+        context_unlock(ctx);
 
-		// thread-safe block - end
-		return req;
-	}
+        // thread-safe block - end
+        return req;
+    }
 
-	return NULL;
+    return NULL;
 }
 
 
@@ -871,17 +920,20 @@ Request *manager_set_time(ContextId id, time_t time, service_request_callback ca
  * @param previous the previous FSM state.
  * @param next the next FSM state.
  */
-void manager_handle_transition_evt(Context *ctx, fsm_states previous, fsm_states next)
+void manager_handle_transition_evt(Context * ctx, fsm_states previous,
+                                   fsm_states next)
 {
-	if (previous == fsm_state_operating && next != previous) {
-		DEBUG(" manager: Notify device unavailable.\n");
-		// Exiting operating state
-		manager_notify_evt_device_unavailable(ctx);
+    if (previous == fsm_state_operating && next != previous)
+    {
+        DEBUG(" manager: Notify device unavailable.\n");
+        // Exiting operating state
+        manager_notify_evt_device_unavailable(ctx);
 
-	}
+    }
 }
 
-static const intu8 default_mgr_system_id[] = { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88 };
+static const intu8 default_mgr_system_id[] =
+{ 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88 };
 static const intu16 default_mgr_system_id_len = 8;
 
 static intu8 *mgr_system_id = 0;
@@ -893,12 +945,12 @@ static intu16 mgr_system_id_len = 0;
  * @param system_id
  * @param len
  */
-void manager_set_system_id(const intu8 *system_id, intu16 len)
+void manager_set_system_id(const intu8 * system_id, intu16 len)
 {
-	free(mgr_system_id);
-	mgr_system_id_len = len;
-	mgr_system_id = malloc(len);
-	memcpy(mgr_system_id, system_id, len);
+    free(mgr_system_id);
+    mgr_system_id_len = len;
+    mgr_system_id = malloc(len);
+    memcpy(mgr_system_id, system_id, len);
 }
 
 /**
@@ -908,12 +960,13 @@ void manager_set_system_id(const intu8 *system_id, intu16 len)
  */
 unsigned short int manager_system_id_length()
 {
-	if (!mgr_system_id) {
-		manager_set_system_id(default_mgr_system_id,
-					default_mgr_system_id_len);
-	}
+    if (!mgr_system_id)
+    {
+        manager_set_system_id(default_mgr_system_id,
+                              default_mgr_system_id_len);
+    }
 
-	return mgr_system_id_len;
+    return mgr_system_id_len;
 }
 
 /**
@@ -923,15 +976,16 @@ unsigned short int manager_system_id_length()
  */
 intu8 *manager_system_id()
 {
-	if (!mgr_system_id) {
-		manager_set_system_id(default_mgr_system_id,
-					default_mgr_system_id_len);
-	}
+    if (!mgr_system_id)
+    {
+        manager_set_system_id(default_mgr_system_id,
+                              default_mgr_system_id_len);
+    }
 
-	intu16 len = manager_system_id_length();
-	intu8 *id = malloc(len);
-	memcpy(id, mgr_system_id, len);
-	return id;
+    intu16 len = manager_system_id_length();
+    intu8 *id = malloc(len);
+    memcpy(id, mgr_system_id, len);
+    return id;
 }
 
 
@@ -944,20 +998,20 @@ intu8 *manager_system_id()
  */
 DataList *manager_get_pmstore_data(ContextId id, int handle)
 {
-	Context *ctx = context_get_and_lock(id);
+    Context *ctx = context_get_and_lock(id);
 
-	if (!ctx)
-		return NULL;
+    if (!ctx)
+        return NULL;
 
-	DataList *list = pmstore_get_data_as_datalist(ctx, handle);
-	context_unlock(ctx);
+    DataList *list = pmstore_get_data_as_datalist(ctx, handle);
+    context_unlock(ctx);
 
-	return list;
+    return list;
 }
 
 
 /**
- * Returns known PM-Store segment info 
+ * Returns known PM-Store segment info
  *
  * @param id context id
  * @param handle PM-Store handle
@@ -965,15 +1019,15 @@ DataList *manager_get_pmstore_data(ContextId id, int handle)
  */
 DataList *manager_get_segment_info_data(ContextId id, int handle)
 {
-	Context *ctx = context_get_and_lock(id);
+    Context *ctx = context_get_and_lock(id);
 
-	if (!ctx)
-		return NULL;
+    if (!ctx)
+        return NULL;
 
-	DataList *list = pmstore_get_segment_info_data_as_datalist(ctx, handle);
-	context_unlock(ctx);
+    DataList *list = pmstore_get_segment_info_data_as_datalist(ctx, handle);
+    context_unlock(ctx);
 
-	return list;
+    return list;
 }
 
 /** @} */

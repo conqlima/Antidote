@@ -123,6 +123,8 @@ static int context_search_by_id(void *arg, void *element)
  * @param type The context type
  * @return Context pointer or NULL if cannot create one.
  */
+ //Modified for Castalia Simulator
+ //gil_lock and gil_unlock commented
 Context *context_create(ContextId id, int type)
 {
 	if (context_list == NULL) {
@@ -165,6 +167,8 @@ Context *context_create(ContextId id, int type)
  *
  * @param id ID of the context to be cleaned up.
  */
+//Modified for Castalia Simulator
+//gil_lock and gil_unlock commented
 void context_remove(ContextId id)
 {
 	DEBUG("Removing context %u:%llu", id.plugin, id.connid);
@@ -195,7 +199,7 @@ void context_remove_all()
 	while (1) {
 		// make sure no one will mess the table while we
 		// get one context id to be destroyed
-		gil_lock();
+		//gil_lock();
 
 		if ((!context_list) || (context_list->size <= 0)) {
 			gil_unlock();
@@ -204,7 +208,7 @@ void context_remove_all()
 		Context *c = llist_get(context_list, 0);
 		ContextId id = c->id;
 
-		gil_unlock();
+		//gil_unlock();
 
 		// safely remove
 		context_remove(id);
@@ -222,6 +226,8 @@ void context_remove_all()
  * @param id Context ID
  * @return pointer to context struct or NULL if cannot find.
  */
+//Modified for Castalia Simulator
+//gil_lock and gil_unlock commented
 Context *context_get_and_lock(ContextId id)
 {
 	//gil_lock();

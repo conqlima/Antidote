@@ -62,6 +62,7 @@ struct oximeter_event_report_data {
 	int sec_fractions;
 };
 
+//Created for Castalia Simulator
 extern uint16_t event_conf_or_unconf_pulse_oximeter;
 
 #endif /* PULSE_OXIMETER_H_ */

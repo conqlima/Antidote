@@ -66,8 +66,11 @@
  * @param ... va_args like in printf.
  * @see printf
  */
+/**Commented for Castalia, uncommnet if you wish see
+the log in terminal.
+*/
 //#define DEBUG(...)   LOG("DEBUG   ", __VA_ARGS__)
-#define DEBUG(...)   
+#define DEBUG(...)
 
 /**
  * @brief Logs a error level message at the log output.
@@ -81,6 +84,9 @@
  * @param ... va_args like in printf.
  * @see printf
  */
+/**Commented for Castalia, uncommnet if you wish see
+the log in terminal.
+*/
 //#define WARNING(...) LOG("WARNING ", __VA_ARGS__)
 #define WARNING(...)
 

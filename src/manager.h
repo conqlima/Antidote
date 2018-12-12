@@ -41,37 +41,38 @@
 /**
  * Manager event listener definition
  */
-typedef struct ManagerListener {
-	/**
-	 *  Called when Medical Measurement is received and stored
-	 */
-	void (*measurement_data_updated)(Context *ctx, DataList *list);
-	/**
-	 *  Called when PM-Segment data event is received. In this case,
-	 *  DataList ownership is passed to the caller.
-	 */
-	void (*segment_data_received)(Context *ctx, int handle, int instnumber,
-					DataList *list);
-	/**
-	 * Called after device is operational
-	 */
-	void (*device_available)(Context *ctx, DataList *list);
-	/**
-	 * Called after device is not operational
-	 */
-	void (*device_unavailable)(Context *ctx);
-	/**
-	 * Called after timeout occurs
-	 */
-	void (*timeout)(Context *ctx);
-	/**
- 	* Called when peer connects
- 	*/
-	int (*device_connected)(Context *ctx, const char *addr);
-	/**
- 	* Called when peer disconnects
- 	*/
-	int (*device_disconnected)(Context *ctx, const char *addr);
+typedef struct ManagerListener
+{
+    /**
+     *  Called when Medical Measurement is received and stored
+     */
+    void (*measurement_data_updated)(Context *ctx, DataList *list);
+    /**
+     *  Called when PM-Segment data event is received. In this case,
+     *  DataList ownership is passed to the caller.
+     */
+    void (*segment_data_received)(Context *ctx, int handle, int instnumber,
+                                  DataList *list);
+    /**
+     * Called after device is operational
+     */
+    void (*device_available)(Context *ctx, DataList *list);
+    /**
+     * Called after device is not operational
+     */
+    void (*device_unavailable)(Context *ctx);
+    /**
+     * Called after timeout occurs
+     */
+    void (*timeout)(Context *ctx);
+    /**
+    * Called when peer connects
+    */
+    int (*device_connected)(Context *ctx, const char *addr);
+    /**
+    * Called when peer disconnects
+    */
+    int (*device_disconnected)(Context *ctx, const char *addr);
 } ManagerListener;
 
 #define MANAGER_LISTENER_EMPTY {\
@@ -111,12 +112,12 @@ Request *manager_request_get_segment_info(ContextId id, int handle, service_requ
 DataList *manager_get_segment_info_data(ContextId id, int handle);
 
 Request *manager_set_operational_state_of_the_scanner(ContextId id, ASN1_HANDLE handle, OperationalState state,
-		service_request_callback callback);
+        service_request_callback callback);
 
 Request *manager_request_get_segment_data(ContextId id, int handle, int instnumber, service_request_callback callback);
 
 Request *manager_request_clear_segment(ContextId id, int handle, int instnumber,
-					 service_request_callback callback);
+                                       service_request_callback callback);
 
 Request *manager_request_clear_segments(ContextId id, int handle, service_request_callback callback);
 

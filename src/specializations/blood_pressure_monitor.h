@@ -60,6 +60,7 @@ struct blood_pressure_event_report_data {
 	int sec_fractions;
 };
 
+//Created for Castalia Simulator
 extern uint16_t event_conf_or_unconf_blood_pressure;
 
 #endif /* BLOOD_PRESSURE_MONITOR_H_ */

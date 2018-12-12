@@ -40,27 +40,28 @@
 /**
  * Agent event listener definition
  */
-typedef struct AgentListener {
-	/**
-	 * Called after device is connected
-	 */
-	void (*device_connected)(Context *ctx, const char *addr);
-	/**
-	 * Called after device is disconnected
-	 */
-	void (*device_disconnected)(Context *ctx, const char *addr);
-	/**
-	 * Called after device is operational
-	 */
-	void (*device_associated)(Context *ctx);
-	/**
-	 * Called after device is not operational
-	 */
-	void (*device_unavailable)(Context *ctx);
-	/**
-	 * Called after timeout occurs
-	 */
-	void (*timeout)(Context *ctx);
+typedef struct AgentListener
+{
+    /**
+     * Called after device is connected
+     */
+    void (*device_connected)(Context *ctx, const char *addr);
+    /**
+     * Called after device is disconnected
+     */
+    void (*device_disconnected)(Context *ctx, const char *addr);
+    /**
+     * Called after device is operational
+     */
+    void (*device_associated)(Context *ctx);
+    /**
+     * Called after device is not operational
+     */
+    void (*device_unavailable)(Context *ctx);
+    /**
+     * Called after timeout occurs
+     */
+    void (*timeout)(Context *ctx);
 } AgentListener;
 
 #define AGENT_LISTENER_EMPTY {\
@@ -74,8 +75,8 @@ typedef struct AgentListener {
 struct mds_system_data;
 
 void agent_init(ContextId id, CommunicationPlugin **plugins, int specialization,
-		void *(*event_report_cb)(),
-		struct mds_system_data *(*mds_data_cb)());
+                void *(*event_report_cb)(),
+                struct mds_system_data *(*mds_data_cb)());
 
 void agent_finalize(ContextId id);
 
@@ -96,6 +97,7 @@ void agent_disconnect(ContextId id);
 void agent_send_data(ContextId id);
 
 void agent_remove_all_listeners();
+
 void agent_request_association_abort(ContextId id);
 
 #endif /* AGENT_H_ */

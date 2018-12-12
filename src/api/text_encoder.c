@@ -59,9 +59,9 @@
  */
 char *int2str(int value)
 {
-	char *str = calloc(MAX_INT_STR, sizeof(char));
-	sprintf(str, "%d", value);
-	return str;
+    char *str = calloc(MAX_INT_STR, sizeof(char));
+    sprintf(str, "%d", value);
+    return str;
 }
 
 /**
@@ -72,7 +72,7 @@ char *int2str(int value)
  */
 char *int8_2str(int8 value)
 {
-	return int2str(value);
+    return int2str(value);
 }
 
 /**
@@ -83,9 +83,9 @@ char *int8_2str(int8 value)
  */
 char *intu8_2str(intu8 value)
 {
-	char *str = calloc(MAX_INT_STR, sizeof(char));
-	sprintf(str, "%u", value);
-	return str;
+    char *str = calloc(MAX_INT_STR, sizeof(char));
+    sprintf(str, "%u", value);
+    return str;
 }
 
 
@@ -97,7 +97,7 @@ char *intu8_2str(intu8 value)
  */
 char *int16_2str(int16 value)
 {
-	return int2str(value);
+    return int2str(value);
 }
 
 /**
@@ -108,9 +108,9 @@ char *int16_2str(int16 value)
  */
 char *intu16_2str(intu16 value)
 {
-	char *str = calloc(MAX_INT_STR, sizeof(char));
-	sprintf(str, "%u", value);
-	return str;
+    char *str = calloc(MAX_INT_STR, sizeof(char));
+    sprintf(str, "%u", value);
+    return str;
 }
 
 /**
@@ -121,7 +121,7 @@ char *intu16_2str(intu16 value)
  */
 char *int32_2str(int32 value)
 {
-	return int2str(value);
+    return int2str(value);
 }
 
 /**
@@ -132,9 +132,9 @@ char *int32_2str(int32 value)
  */
 char *intu32_2str(intu32 value)
 {
-	char *str = calloc(MAX_INT_STR, sizeof(char));
-	sprintf(str, "%u", value);
-	return str;
+    char *str = calloc(MAX_INT_STR, sizeof(char));
+    sprintf(str, "%u", value);
+    return str;
 }
 
 /**
@@ -146,19 +146,21 @@ char *intu32_2str(intu32 value)
  */
 char *intu16list_2str(intu16 *list, int size)
 {
-	char *result = calloc(MAX_INT_STR * (size+1), sizeof(char));
+    char *result = calloc(MAX_INT_STR * (size+1), sizeof(char));
 
-	if (size > 0) {
-		int i = 0;
+    if (size > 0)
+    {
+        int i = 0;
 
-		for (i = 0; i < size-1; i++) {
-			sprintf(result, "%s%d,", result, list[i]);
-		}
+        for (i = 0; i < size-1; i++)
+        {
+            sprintf(result, "%s%d,", result, list[i]);
+        }
 
-		sprintf(result, "%s%d", result, list[size-1]);
-	}
+        sprintf(result, "%s%d", result, list[size-1]);
+    }
 
-	return result;
+    return result;
 }
 
 /**
@@ -169,9 +171,9 @@ char *intu16list_2str(intu16 *list, int size)
  */
 char *float2str(float value)
 {
-	char *str = calloc(MAX_FLOAT_STR, sizeof(char));
-	sprintf(str, "%f", value);
-	return str;
+    char *str = calloc(MAX_FLOAT_STR, sizeof(char));
+    sprintf(str, "%f", value);
+    return str;
 }
 
 /**
@@ -180,32 +182,37 @@ char *float2str(float value)
  * @param str the octet_string to be converted into string.
  * @return the string representation.
  */
+//Modified for Castalia Simulator
 char *octet_string2str(octet_string *str)
 {
-	char *result = calloc(str->length + 1, sizeof(char));
-	int *is_null = calloc(str->length, sizeof(int));
-	int is_null_count = 0;
-	int i = 0;
+    char *result = calloc(str->length + 1, sizeof(char));
+    int *is_null = calloc(str->length, sizeof(int));
+    int is_null_count = 0;
+    int i = 0;
 
-	for (i = 0; i < str->length; i++) {
-		/*the null character is not printed by sprintf
-		 * so we take it position and later replaced again
-		 * with 0x00*/
-		if (str->value[i] == 0x0){
-			is_null[is_null_count] = i;
-			is_null_count++;
-			sprintf(result, "%s%d", result, str->value[i]);
-		}
-		sprintf(result, "%s%c", result, str->value[i]);
-	}
-	for (i = 0; i < is_null_count; i++)
-	{
-		result[is_null[i]] = 0x00;
-	}
-	
-	result[str->length] = '\0';
-	free(is_null);
-	return result;
+    for (i = 0; i < str->length; i++)
+    {
+        /**
+         * The null character is not printed by sprintf
+         * so we take it position and later replace with 0x00
+         **/
+        if (str->value[i] == 0x0)
+        {
+            is_null[is_null_count] = i;
+            is_null_count++;
+            sprintf(result, "%s%d", result, str->value[i]);
+        }
+        else
+            sprintf(result, "%s%c", result, str->value[i]);
+    }
+    for (i = 0; i < is_null_count; i++)
+    {
+        result[is_null[i]] = 0x00;
+    }
+
+    result[str->length] = '\0';
+    free(is_null);
+    return result;
 }
 
 /**
@@ -216,17 +223,18 @@ char *octet_string2str(octet_string *str)
  */
 char *octet_string2hex(octet_string *str)
 {
-	int size = str->length*2;
-	char *result = calloc(size+1, sizeof(char));
-	int i = 0;
+    int size = str->length*2;
+    char *result = calloc(size+1, sizeof(char));
+    int i = 0;
 
-	for (i = 0; i < str->length; i++) {
-		sprintf(result, "%s%.2X", result, str->value[i]);
-	}
+    for (i = 0; i < str->length; i++)
+    {
+        sprintf(result, "%s%.2X", result, str->value[i]);
+    }
 
-	result[size] = '\0';
+    result[size] = '\0';
 
-	return result;
+    return result;
 }
 
 /**
@@ -237,18 +245,19 @@ char *octet_string2hex(octet_string *str)
  */
 char *high_res_relative_time2hex(HighResRelativeTime *time)
 {
-	int time_length = 8;
-	int size = time_length*2;
-	char *result = calloc(size+1, sizeof(char));
-	int i = 0;
+    int time_length = 8;
+    int size = time_length*2;
+    char *result = calloc(size+1, sizeof(char));
+    int i = 0;
 
-	for (i = 0; i < time_length; i++) {
-		sprintf(result, "%s%.2X", result, time->value[i]);
-	}
+    for (i = 0; i < time_length; i++)
+    {
+        sprintf(result, "%s%.2X", result, time->value[i]);
+    }
 
-	result[size] = '\0';
+    result[size] = '\0';
 
-	return result;
+    return result;
 }
 
 
@@ -260,7 +269,7 @@ char *high_res_relative_time2hex(HighResRelativeTime *time)
  */
 char *bcdtime2number(intu8 value)
 {
-	return intu8_2str(date_util_convert_bcd_to_number(value));
+    return intu8_2str(date_util_convert_bcd_to_number(value));
 }
 
 

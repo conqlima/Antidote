@@ -3,7 +3,7 @@
 
 #include <communication/stdconfigurations.h>
 
-/* Thermometer nomenclature */
+/** Thermometer nomenclature */
 /*********************************************************************************
 * From Medical supervisory control and data acquisition (MDC_PART_SCADA)
 **********************************************************************************/
@@ -15,7 +15,7 @@
 #define MDC_TEMP_FINGER		57360
 #define MDC_TEMP_TOE		57376
 
-/* New nomenclature codes introduced in the present document (IEEE Std 11073-10408).*/
+/** New nomenclature codes introduced in the present document (IEEE Std 11073-10408).*/
 #define MDC_TEMP_AXILLA		57380
 #define MDC_TEMP_GIT		57384
 
@@ -30,16 +30,17 @@ struct StdConfiguration *thermometer_create_std_config_ID0320();
 /**
  * Event report data, used in Agent role
  */
-struct thermometer_event_report_data {
-	FLOAT_Type temperature;
-	int century;
-	int year;
-	int month;
-	int day;
-	int hour;
-	int minute;
-	int second;
-	int sec_fractions;
+struct thermometer_event_report_data
+{
+    FLOAT_Type temperature;
+    int century;
+    int year;
+    int month;
+    int day;
+    int hour;
+    int minute;
+    int second;
+    int sec_fractions;
 };
 
 extern uint16_t event_conf_or_unconf_thermometer;

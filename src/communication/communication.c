@@ -63,9 +63,10 @@
 /**
  * Represents the network layer status
  */
-typedef enum {
-	NETWORK_STATUS_NOT_INITIALIZED = 0,
-	NETWORK_STATUS_INITIALIZED
+typedef enum
+{
+    NETWORK_STATUS_NOT_INITIALIZED = 0,
+    NETWORK_STATUS_INITIALIZED
 } communication_network_status;
 
 /**
@@ -92,7 +93,7 @@ static CommunicationPlugin **comm_plugins = NULL;
  * Remote operation invoke message type (roiv-*)
  */
 static const int ROIV_TYPE = ROIV_CMIP_ACTION_CHOSEN
-			     & REMOTE_OPERATION_TYPE_MASK;
+                             & REMOTE_OPERATION_TYPE_MASK;
 
 /**
  * Remote operation response type (rors-*)
@@ -114,16 +115,17 @@ static int communication_notify_state_transition_evt(Context *ctx, fsm_states pr
 /**
  * State machine transition listener definition
  */
-typedef struct StateTransitionListener {
-	/**
-	 * The entering state to listen
-	 */
-	fsm_states state;
+typedef struct StateTransitionListener
+{
+    /**
+     * The entering state to listen
+     */
+    fsm_states state;
 
-	/**
-	 * Function called when after state transition occurs.
-	 */
-	communication_state_transition_handler_function handler;
+    /**
+     * Function called when after state transition occurs.
+     */
+    communication_state_transition_handler_function handler;
 } StateTransitionListener;
 
 
@@ -156,60 +158,67 @@ static int communication_fire_transport_disconnect_evt(Context *ctx);
  */
 unsigned int communication_plugin_id(CommunicationPlugin *plugin)
 {
-	unsigned int i;
-	for (i = 1; i <= plugin_count; ++i) {
-		if (comm_plugins[i] == plugin) {
-			return i;
-		}
-	}
+    unsigned int i;
+    for (i = 1; i <= plugin_count; ++i)
+    {
+        if (comm_plugins[i] == plugin)
+        {
+            return i;
+        }
+    }
 
-	DEBUG("Plugin %p not found in registry", plugin);
+    DEBUG("Plugin %p not found in registry", plugin);
 
-	return 0;
+    return 0;
 }
 
 /**
  * Add a communication plugin. Plugins must be added
  * before any other communication function is called.
- * 
+ *
  * @param plugin Communication plugin
  */
+//Modified for Castalia Simulator
 void communication_add_plugin(ContextId id, CommunicationPlugin *plugin)
 {
-	int size = 1;
-	if (plugin_count < id.plugin){
-	plugin_count = id.plugin;
-	size = sizeof(CommunicationPlugin *) * (plugin_count + 1);
-	}
-	
-	if (!comm_plugins) {
-		// keep zero as invalid
-		comm_plugins = malloc(size);
-		comm_plugins[0] = 0;
-		network_status = malloc(sizeof(communication_network_status)*(id.plugin+1));
-	} else if (plugin_count == id.plugin) {
-		comm_plugins = realloc(comm_plugins, size);
-		network_status = realloc(network_status, sizeof(communication_network_status)*(id.plugin+1));
-	}
-	
-	network_status[id.plugin] = NETWORK_STATUS_NOT_INITIALIZED;
-	comm_plugins[id.plugin] = plugin;
-} 
- 
+    int size = 1;
+    if (plugin_count < id.plugin)
+    {
+        plugin_count = id.plugin;
+        size = sizeof(CommunicationPlugin *) * (plugin_count + 1);
+    }
+
+    if (!comm_plugins)
+    {
+        // keep zero as invalid
+        comm_plugins = malloc(size);
+        comm_plugins[0] = 0;
+        network_status = malloc(sizeof(communication_network_status)*(id.plugin+1));
+    }
+    else if (plugin_count == id.plugin)
+    {
+        comm_plugins = realloc(comm_plugins, size);
+        network_status = realloc(network_status, sizeof(communication_network_status)*(id.plugin+1));
+    }
+
+    network_status[id.plugin] = NETWORK_STATUS_NOT_INITIALIZED;
+    comm_plugins[id.plugin] = plugin;
+}
+
 //void communication_add_plugin(CommunicationPlugin *plugin)
 //{
-	//++plugin_count;
-	//int size = sizeof(CommunicationPlugin *) * (plugin_count + 1);
+//++plugin_count;
+//int size = sizeof(CommunicationPlugin *) * (plugin_count + 1);
 
-	//if (!comm_plugins) {
-		//// keep zero as invalid
-		//comm_plugins = malloc(size);
-		//comm_plugins[0] = 0;
-	//} else {
-		//comm_plugins = realloc(comm_plugins, size);
-	//}
+//if (!comm_plugins) {
+//// keep zero as invalid
+//comm_plugins = malloc(size);
+//comm_plugins[0] = 0;
+//} else {
+//comm_plugins = realloc(comm_plugins, size);
+//}
 
-	//comm_plugins[plugin_count] = plugin;
+//comm_plugins[plugin_count] = plugin;
 //}
 
 /**
@@ -217,11 +226,12 @@ void communication_add_plugin(ContextId id, CommunicationPlugin *plugin)
  */
 CommunicationPlugin *communication_get_plugin(unsigned int label)
 {
-	if (!label || (label > plugin_count)) {
-		ERROR("Plugin id %d unknown", label);
-		return 0;
-	}
-	return comm_plugins[label];
+    if (!label || (label > plugin_count))
+    {
+        ERROR("Plugin id %d unknown", label);
+        return 0;
+    }
+    return comm_plugins[label];
 }
 
 /**
@@ -229,11 +239,11 @@ CommunicationPlugin *communication_get_plugin(unsigned int label)
  */
 int communication_is_trans(Context *ctx)
 {
-	CommunicationPlugin *plugin = communication_get_plugin(ctx->id.plugin);
-	if (plugin)
-		if (plugin->type & TRANS_CONTEXT)
-			return 1;
-	return 0;
+    CommunicationPlugin *plugin = communication_get_plugin(ctx->id.plugin);
+    if (plugin)
+        if (plugin->type & TRANS_CONTEXT)
+            return 1;
+    return 0;
 }
 
 /**
@@ -241,33 +251,35 @@ int communication_is_trans(Context *ctx)
  */
 int communication_finalize_thread_context(Context *ctx)
 {
-	CommunicationPlugin *comm_plugin =
-		communication_get_plugin(ctx->id.plugin);
+    CommunicationPlugin *comm_plugin =
+        communication_get_plugin(ctx->id.plugin);
 
-	if (!comm_plugin)
-		return 0;
+    if (!comm_plugin)
+        return 0;
 
-	comm_plugin->thread_finalize(ctx);
-	return 1;
+    comm_plugin->thread_finalize(ctx);
+    return 1;
 }
 
 /**
  * Breaks connection
  */
+//Modified for Castalia Simulator
 int communication_force_disconnect(Context *ctx)
 {
-	if (! ctx) {
-		return 0;
-	}
+    if (! ctx)
+    {
+        return 0;
+    }
 
-	CommunicationPlugin *comm_plugin =
-		communication_get_plugin(ctx->id.plugin);
+    CommunicationPlugin *comm_plugin =
+        communication_get_plugin(ctx->id.plugin);
 
-	if (!comm_plugin)
-		return 0;
+    if (!comm_plugin)
+        return 0;
 
-	comm_plugin->network_disconnect(ctx);
-	return 1;
+    comm_plugin->network_disconnect(ctx);
+    return 1;
 }
 
 /**
@@ -276,45 +288,50 @@ int communication_force_disconnect(Context *ctx)
  *
  * This method should be invoked in a thread safe execution.
  */
+//Modified for Castalia Simulator
 void communication_finalize(ContextId id)
 {
-	unsigned int i;
-	DEBUG(" communication: Finalizing. ");
+    unsigned int i;
+    DEBUG(" communication: Finalizing. ");
 
-	// Reset all timeouts
+    // Reset all timeouts
 
-	// Finalizes all threads in execution
+    // Finalizes all threads in execution
 
-	if (communication_is_network_started(id)) {
-		for (i = 1; i <= plugin_count; ++i) {
-			CommunicationPlugin *comm_plugin = comm_plugins[i];
-			network_status[i] = NETWORK_STATUS_NOT_INITIALIZED;
-			if (comm_plugin->network_finalize() != NETWORK_ERROR_NONE) {
-				DEBUG("Trouble finalizing plugin %d", i);
-			}
-		}
-			//network_status[id.plugin] = NETWORK_STATUS_NOT_INITIALIZED;
+    if (communication_is_network_started(id))
+    {
+        for (i = 1; i <= plugin_count; ++i)
+        {
+            CommunicationPlugin *comm_plugin = comm_plugins[i];
+            network_status[i] = NETWORK_STATUS_NOT_INITIALIZED;
+            if (comm_plugin->network_finalize() != NETWORK_ERROR_NONE)
+            {
+                DEBUG("Trouble finalizing plugin %d", i);
+            }
+        }
+        //network_status[id.plugin] = NETWORK_STATUS_NOT_INITIALIZED;
 
 
-		context_iterate(&communication_fire_transport_disconnect_evt);
-	}
+        context_iterate(&communication_fire_transport_disconnect_evt);
+    }
 
-	communication_remove_all_state_transition_listeners();
-	communication_remove_connection_listeners();
-	context_remove_all();
+    communication_remove_all_state_transition_listeners();
+    communication_remove_connection_listeners();
+    context_remove_all();
 
-	for (i = 1; i <= plugin_count; ++i) {
-		CommunicationPlugin *comm_plugin = comm_plugins[i];
-		communication_plugin_clear(comm_plugin);
-		comm_plugins[i] = NULL;
-	}
+    for (i = 1; i <= plugin_count; ++i)
+    {
+        CommunicationPlugin *comm_plugin = comm_plugins[i];
+        communication_plugin_clear(comm_plugin);
+        comm_plugins[i] = NULL;
+    }
 
-	free(comm_plugins);
-	free(network_status);
-	comm_plugins = NULL;
-	plugin_count = 0;
+    free(comm_plugins);
+    free(network_status);
+    comm_plugins = NULL;
+    plugin_count = 0;
 
-	trans_finalize();
+    trans_finalize();
 }
 
 
@@ -326,41 +343,45 @@ void communication_finalize(ContextId id)
  *
  * @return 1 if operation succeeds, 0 if not.
  */
+//Modified for Castalia Simulator
 int communication_add_state_transition_listener(
-	ContextId id,
-	fsm_states state,
-	communication_state_transition_handler_function listener_function)
+    ContextId id,
+    fsm_states state,
+    communication_state_transition_handler_function listener_function)
 {
 
-	unsigned int size = state_transition_listener_size;
-	//int size = plugins->id.plugin;
+    unsigned int size = state_transition_listener_size;
+    //int size = plugins->id.plugin;
 
-	// test if there is not elements in the list
-	if (size == 0) {
-		state_transition_listener_list = malloc(
-				sizeof(struct StateTransitionListener));
-		//keep zero as invalid
-		//state_transition_listener_list[0] = {NULL,NULL};
-	}
-	if (size < id.plugin) { // change the list size
-		state_transition_listener_list
-		= realloc(
-			  state_transition_listener_list,
-			  sizeof(struct StateTransitionListener)
-			  * (id.plugin+1));
-		state_transition_listener_size = id.plugin;
-	}
+    // test if there is not elements in the list
+    if (size == 0)
+    {
+        state_transition_listener_list = malloc(
+                                             sizeof(struct StateTransitionListener));
+        //keep zero as invalid
+        //state_transition_listener_list[0] = {NULL,NULL};
+    }
+    if (size < id.plugin)   // change the list size
+    {
+        state_transition_listener_list
+            = realloc(
+                  state_transition_listener_list,
+                  sizeof(struct StateTransitionListener)
+                  * (id.plugin+1));
+        state_transition_listener_size = id.plugin;
+    }
 
-	// add element to list
-	if (state_transition_listener_list == NULL) {
-		return 0;
-	}
+    // add element to list
+    if (state_transition_listener_list == NULL)
+    {
+        return 0;
+    }
 
-	StateTransitionListener *listener = &state_transition_listener_list[id.plugin];
-	listener->state = state;
-	listener->handler = listener_function;
+    StateTransitionListener *listener = &state_transition_listener_list[id.plugin];
+    listener->state = state;
+    listener->handler = listener_function;
 
-	return 1;
+    return 1;
 }
 
 /**
@@ -368,23 +389,24 @@ int communication_add_state_transition_listener(
  */
 void communication_remove_all_state_transition_listeners()
 {
-	if (state_transition_listener_list != NULL) {
-		state_transition_listener_size = 0;
-		free(state_transition_listener_list);
-		state_transition_listener_list = NULL;
-	}
+    if (state_transition_listener_list != NULL)
+    {
+        state_transition_listener_size = 0;
+        free(state_transition_listener_list);
+        state_transition_listener_list = NULL;
+    }
 }
 
 
 void communication_set_connection_listeners(comm_conn_cb cf, comm_disconn_cb df)
 {
-	connection_listener = cf;
-	disconnection_listener = df;
+    connection_listener = cf;
+    disconnection_listener = df;
 }
 
 void communication_remove_connection_listeners()
 {
-	connection_listener = disconnection_listener = NULL;
+    connection_listener = disconnection_listener = NULL;
 }
 
 /**
@@ -393,34 +415,40 @@ void communication_remove_connection_listeners()
  *
  * This method should be invoked in a thread safe execution.
  */
+//Modified for Castalia Simulator
 void communication_network_start(ContextId id)
 {
-	if (network_status[id.plugin] == NETWORK_STATUS_NOT_INITIALIZED) {
-		//unsigned int i;
+    if (network_status[id.plugin] == NETWORK_STATUS_NOT_INITIALIZED)
+    {
+        //unsigned int i;
 
-		//for (i = 1; i <= plugin_count; ++i) {
-			CommunicationPlugin *comm_plugin = comm_plugins[id.plugin];
-			int ret_code = comm_plugin->network_init(id.plugin);
+        //for (i = 1; i <= plugin_count; ++i) {
+        CommunicationPlugin *comm_plugin = comm_plugins[id.plugin];
+        int ret_code = comm_plugin->network_init(id.plugin);
 
-			if (ret_code != NETWORK_ERROR_NONE) {
-				ERROR(" Cannot initialize plugin %d", id.plugin);
-			}
-		//}
-		
-		network_status[id.plugin] = NETWORK_STATUS_INITIALIZED;
+        if (ret_code != NETWORK_ERROR_NONE)
+        {
+            ERROR(" Cannot initialize plugin %d", id.plugin);
+        }
+        //}
 
-	} else if (network_status[id.plugin] == NETWORK_STATUS_INITIALIZED) {
-		INFO(" Network is already initialized.");
-	}
+        network_status[id.plugin] = NETWORK_STATUS_INITIALIZED;
+
+    }
+    else if (network_status[id.plugin] == NETWORK_STATUS_INITIALIZED)
+    {
+        INFO(" Network is already initialized.");
+    }
 }
 
 /**
  * Check if network layer is running
  * @return 1 if true, 0 if not
  */
+//Modified for Castalia Simulator
 int communication_is_network_started(ContextId id)
 {
-	return network_status[id.plugin] == NETWORK_STATUS_INITIALIZED;
+    return network_status[id.plugin] == NETWORK_STATUS_INITIALIZED;
 }
 
 /**
@@ -431,14 +459,15 @@ int communication_is_network_started(ContextId id)
  */
 static int communication_fire_transport_disconnect_evt(Context *ctx)
 {
-	if (ctx != NULL) {
-		communication_lock(ctx);
-		communication_fire_evt(ctx, fsm_evt_ind_transport_disconnect, NULL);
-		communication_reset_timeout(ctx);
-		communication_unlock(ctx);
-	}
+    if (ctx != NULL)
+    {
+        communication_lock(ctx);
+        communication_fire_evt(ctx, fsm_evt_ind_transport_disconnect, NULL);
+        communication_reset_timeout(ctx);
+        communication_unlock(ctx);
+    }
 
-	return 1;
+    return 1;
 }
 /**
  * Stops network layer.
@@ -447,25 +476,26 @@ static int communication_fire_transport_disconnect_evt(Context *ctx)
  *
  * @return 1 if operation succeeds, 0 otherwise
  */
-
+//Modified for Castalia Simulator
 int communication_network_stop(ContextId id)
 {
-	DEBUG("communication: shutting down network.");
+    DEBUG("communication: shutting down network.");
 
-	//unsigned int i;
+    //unsigned int i;
 
-	//for (i = 1; i <= plugin_count; ++i) {
-		CommunicationPlugin *comm_plugin = comm_plugins[id.plugin];
-		if (comm_plugin->network_finalize() != NETWORK_ERROR_NONE) {
-			DEBUG("Trouble finalizing plugin %d", id.plugin);
-		}
-	//}
+    //for (i = 1; i <= plugin_count; ++i) {
+    CommunicationPlugin *comm_plugin = comm_plugins[id.plugin];
+    if (comm_plugin->network_finalize() != NETWORK_ERROR_NONE)
+    {
+        DEBUG("Trouble finalizing plugin %d", id.plugin);
+    }
+    //}
 
-	network_status[id.plugin] = NETWORK_STATUS_NOT_INITIALIZED;
+    network_status[id.plugin] = NETWORK_STATUS_NOT_INITIALIZED;
 
-	context_iterate(&communication_fire_transport_disconnect_evt);
+    context_iterate(&communication_fire_transport_disconnect_evt);
 
-	return 1;
+    return 1;
 }
 
 /**
@@ -478,30 +508,31 @@ int communication_network_stop(ContextId id)
  */
 Context *communication_transport_connect_indication(ContextId id, const char *addr)
 {
-	CommunicationPlugin *comm_plugin =
-		communication_get_plugin(id.plugin);
+    CommunicationPlugin *comm_plugin =
+        communication_get_plugin(id.plugin);
 
-	if (!comm_plugin)
-		return 0;
+    if (!comm_plugin)
+        return 0;
 
-	Context *ctx = context_create(id, comm_plugin->type);
+    Context *ctx = context_create(id, comm_plugin->type);
 
-	// thread-safe block - begin
-	comm_plugin->thread_init(ctx);
-	communication_lock(ctx);
+    // thread-safe block - begin
+    comm_plugin->thread_init(ctx);
+    communication_lock(ctx);
 
-	if (ctx != NULL) {
-		communication_fire_evt(ctx, fsm_evt_ind_transport_connection,
-				       NULL);
-	}
+    if (ctx != NULL)
+    {
+        communication_fire_evt(ctx, fsm_evt_ind_transport_connection,
+                               NULL);
+    }
 
-	if (connection_listener)
-		connection_listener(ctx, addr);
+    if (connection_listener)
+        connection_listener(ctx, addr);
 
-	communication_unlock(ctx);
-	// thread-safe block - end
+    communication_unlock(ctx);
+    // thread-safe block - end
 
-	return ctx;
+    return ctx;
 }
 
 
@@ -514,19 +545,19 @@ Context *communication_transport_connect_indication(ContextId id, const char *ad
  */
 void communication_transport_disconnect_indication(ContextId id, const char *addr)
 {
-	Context *ctx = context_get_and_lock(id);
+    Context *ctx = context_get_and_lock(id);
 
-	if (!ctx)
-		return;
+    if (!ctx)
+        return;
 
-	communication_fire_transport_disconnect_evt(ctx);
+    communication_fire_transport_disconnect_evt(ctx);
 
-	if (disconnection_listener)
-		disconnection_listener(ctx, addr);
+    if (disconnection_listener)
+        disconnection_listener(ctx, addr);
 
-	context_unlock(ctx);
+    context_unlock(ctx);
 
-	context_remove(id);
+    context_remove(id);
 }
 
 
@@ -538,13 +569,13 @@ void communication_transport_disconnect_indication(ContextId id, const char *add
  */
 void communication_lock(Context *ctx)
 {
-	CommunicationPlugin *comm_plugin =
-		communication_get_plugin(ctx->id.plugin);
+    CommunicationPlugin *comm_plugin =
+        communication_get_plugin(ctx->id.plugin);
 
-	if (!comm_plugin)
-		return;
+    if (!comm_plugin)
+        return;
 
-	comm_plugin->thread_lock(ctx);
+    comm_plugin->thread_lock(ctx);
 }
 
 /**
@@ -555,13 +586,13 @@ void communication_lock(Context *ctx)
  */
 void communication_unlock(Context *ctx)
 {
-	CommunicationPlugin *comm_plugin =
-		communication_get_plugin(ctx->id.plugin);
+    CommunicationPlugin *comm_plugin =
+        communication_get_plugin(ctx->id.plugin);
 
-	if (!comm_plugin)
-		return;
+    if (!comm_plugin)
+        return;
 
-	comm_plugin->thread_unlock(ctx);
+    comm_plugin->thread_unlock(ctx);
 }
 
 /**
@@ -569,13 +600,14 @@ void communication_unlock(Context *ctx)
  */
 void gil_lock()
 {
-	if (plugin_count > 0) {
-		// gets the first plug-in (in a multithreaded
-		// environment, all plugins must implement 
-		// thread locking)
-		CommunicationPlugin *comm_plugin = comm_plugins[1];
-		comm_plugin->thread_lock(0);
-	}
+    if (plugin_count > 0)
+    {
+        // gets the first plug-in (in a multithreaded
+        // environment, all plugins must implement
+        // thread locking)
+        CommunicationPlugin *comm_plugin = comm_plugins[1];
+        comm_plugin->thread_lock(0);
+    }
 }
 
 /**
@@ -583,13 +615,14 @@ void gil_lock()
  */
 void gil_unlock()
 {
-	if (plugin_count > 0) {
-		// gets the first plug-in (in a multithreaded
-		// environment, all plugins must implement 
-		// thread locking)
-		CommunicationPlugin *comm_plugin = comm_plugins[1];
-		comm_plugin->thread_unlock(0);
-	}
+    if (plugin_count > 0)
+    {
+        // gets the first plug-in (in a multithreaded
+        // environment, all plugins must implement
+        // thread locking)
+        CommunicationPlugin *comm_plugin = comm_plugins[1];
+        comm_plugin->thread_unlock(0);
+    }
 }
 
 /**
@@ -597,13 +630,13 @@ void gil_unlock()
  */
 int communication_wait_for_data_input(Context *ctx)
 {
-	CommunicationPlugin *comm_plugin =
-		communication_get_plugin(ctx->id.plugin);
+    CommunicationPlugin *comm_plugin =
+        communication_get_plugin(ctx->id.plugin);
 
-	if (!comm_plugin)
-		return 0;
+    if (!comm_plugin)
+        return 0;
 
-	return comm_plugin->network_wait_for_data(ctx);
+    return comm_plugin->network_wait_for_data(ctx);
 }
 
 /**
@@ -613,11 +646,12 @@ int communication_wait_for_data_input(Context *ctx)
  */
 void communication_read_input_stream(ContextId id)
 {
-	Context *ctx = context_get_and_lock(id);
-	if (ctx != NULL) {
-		communication_process_input_data(ctx, communication_get_apdu_stream(ctx));
-		context_unlock(ctx);
-	}
+    Context *ctx = context_get_and_lock(id);
+    if (ctx != NULL)
+    {
+        communication_process_input_data(ctx, communication_get_apdu_stream(ctx));
+        context_unlock(ctx);
+    }
 }
 
 /**
@@ -628,36 +662,39 @@ void communication_read_input_stream(ContextId id)
  */
 void communication_process_input_data(Context *ctx, ByteStreamReader *stream)
 {
-	int error = 0;
+    int error = 0;
 
-	if (ctx != NULL) {
-		if (stream == NULL) {
-			return;
-		}
+    if (ctx != NULL)
+    {
+        if (stream == NULL)
+        {
+            return;
+        }
 
 #ifdef APDU_DUMP
-		ioutil_buffer_to_file("apdu_dump", 5, (unsigned char *) "recv ", 1);
-		ioutil_buffer_to_file("apdu_dump", stream->unread_bytes, stream->buffer, 1);
-		ioutil_buffer_to_file("apdu_dump", 1, (unsigned char *) "\n", 1);
+        ioutil_buffer_to_file("apdu_dump", 5, (unsigned char *) "recv ", 1);
+        ioutil_buffer_to_file("apdu_dump", stream->unread_bytes, stream->buffer, 1);
+        ioutil_buffer_to_file("apdu_dump", 1, (unsigned char *) "\n", 1);
 #endif
 
-		// Decode the APDU
-		APDU apdu;
-		decode_apdu(stream, &apdu, &error);
-		if (error) {
-			DEBUG("Invalid APDU, firing abort");
-			communication_fire_evt(ctx, fsm_evt_req_assoc_abort, NULL);
-			return;
-		}
+        // Decode the APDU
+        APDU apdu;
+        decode_apdu(stream, &apdu, &error);
+        if (error)
+        {
+            DEBUG("Invalid APDU, firing abort");
+            communication_fire_evt(ctx, fsm_evt_req_assoc_abort, NULL);
+            return;
+        }
 
-		// Process APDU
-		communication_process_apdu(ctx, &apdu);
+        // Process APDU
+        communication_process_apdu(ctx, &apdu);
 
-		// Delete APDU
-		del_apdu(&apdu);
+        // Delete APDU
+        del_apdu(&apdu);
 
-		del_byte_stream_reader(stream, 1);
-	}
+        del_byte_stream_reader(stream, 1);
+    }
 }
 
 
@@ -666,13 +703,13 @@ void communication_process_input_data(Context *ctx, ByteStreamReader *stream)
  */
 ByteStreamReader *communication_get_apdu_stream(Context *ctx)
 {
-	CommunicationPlugin *comm_plugin =
-		communication_get_plugin(ctx->id.plugin);
+    CommunicationPlugin *comm_plugin =
+        communication_get_plugin(ctx->id.plugin);
 
-	if (!comm_plugin)
-		return 0;
+    if (!comm_plugin)
+        return 0;
 
-	return comm_plugin->network_get_apdu_stream(ctx);
+    return comm_plugin->network_get_apdu_stream(ctx);
 }
 
 /**
@@ -685,85 +722,88 @@ ByteStreamReader *communication_get_apdu_stream(Context *ctx)
  */
 void communication_fire_evt(Context *ctx, fsm_events evt, FSMEventData *data)
 {
-	// thread-safe block - start
-	communication_lock(ctx);
+    // thread-safe block - start
+    communication_lock(ctx);
 
-	// thread safe state transition
-	FSM *fsm  = ctx->fsm;
-	fsm_states previous = fsm->state;
+    // thread safe state transition
+    FSM *fsm  = ctx->fsm;
+    fsm_states previous = fsm->state;
 
-	if (fsm_process_evt(ctx, evt, data) == FSM_PROCESS_EVT_RESULT_STATE_CHANGED) {
-		communication_notify_state_transition_evt(ctx, previous, fsm->state);
-	}
+    if (fsm_process_evt(ctx, evt, data) == FSM_PROCESS_EVT_RESULT_STATE_CHANGED)
+    {
+        communication_notify_state_transition_evt(ctx, previous, fsm->state);
+    }
 
-	communication_unlock(ctx);
-	// thread-safe block - end
+    communication_unlock(ctx);
+    // thread-safe block - end
 }
 
 static void communication_process_apdu_agent(Context *ctx, APDU *apdu)
 {
-	switch (ctx->fsm->state) {
-	case fsm_state_disconnected:
-		ERROR("Cannot process APDU in disconnected state ");
-		break;
-	case fsm_state_unassociated:
-		association_unassociated_process_apdu_agent(ctx, apdu);
-		break;
-	case fsm_state_associating:
-		association_unassociated_process_apdu_agent(ctx, apdu);
-		break;
-	case fsm_state_operating:
-		operating_process_apdu_agent(ctx, apdu);
-		break;
-	case fsm_state_disassociating:
-		disassociating_process_apdu_agent(ctx, apdu);
-		break;
-	case fsm_state_config_sending:
-		// only agent uses this
-		configuring_agent_config_sending_process_apdu(ctx, apdu);
-		break;
-	case fsm_state_waiting_approval:
-		// only agent uses this
-		configuring_agent_waiting_approval_process_apdu(ctx, apdu);
-		break;
-	default:
-		ERROR(" service error: Invalid machine state ");
-		// put in an acceptable state and then disconnect
-		ctx->fsm->state = fsm_state_unassociated;
-		communication_fire_transport_disconnect_evt(ctx);
-	}
+    switch (ctx->fsm->state)
+    {
+    case fsm_state_disconnected:
+        ERROR("Cannot process APDU in disconnected state ");
+        break;
+    case fsm_state_unassociated:
+        association_unassociated_process_apdu_agent(ctx, apdu);
+        break;
+    case fsm_state_associating:
+        association_unassociated_process_apdu_agent(ctx, apdu);
+        break;
+    case fsm_state_operating:
+        operating_process_apdu_agent(ctx, apdu);
+        break;
+    case fsm_state_disassociating:
+        disassociating_process_apdu_agent(ctx, apdu);
+        break;
+    case fsm_state_config_sending:
+        // only agent uses this
+        configuring_agent_config_sending_process_apdu(ctx, apdu);
+        break;
+    case fsm_state_waiting_approval:
+        // only agent uses this
+        configuring_agent_waiting_approval_process_apdu(ctx, apdu);
+        break;
+    default:
+        ERROR(" service error: Invalid machine state ");
+        // put in an acceptable state and then disconnect
+        ctx->fsm->state = fsm_state_unassociated;
+        communication_fire_transport_disconnect_evt(ctx);
+    }
 }
 
 static void communication_process_apdu_manager(Context *ctx, APDU *apdu)
 {
-	switch (ctx->fsm->state) {
-	case fsm_state_disconnected:
-		ERROR("Cannot process APDU in disconnected state ");
-		break;
-	case fsm_state_unassociated:
-		association_unassociated_process_apdu(ctx, apdu);
-		break;
-	case fsm_state_associating:
-		// The associating state is not used by manager
-		break;
-	case fsm_state_operating:
-		operating_process_apdu(ctx, apdu);
-		break;
-	case fsm_state_disassociating:
-		disassociating_process_apdu(ctx, apdu);
-		break;
-	case fsm_state_checking_config:
-		configuring_checking_state_process_apdu(ctx, apdu);
-		break;
-	case fsm_state_waiting_for_config:
-		configuring_waiting_state_process_apdu(ctx, apdu);
-		break;
-	default:
-		ERROR(" service error: Invalid machine state ");
-		// put in an acceptable state and then disconnect
-		ctx->fsm->state = fsm_state_unassociated;
-		communication_fire_transport_disconnect_evt(ctx);
-	}
+    switch (ctx->fsm->state)
+    {
+    case fsm_state_disconnected:
+        ERROR("Cannot process APDU in disconnected state ");
+        break;
+    case fsm_state_unassociated:
+        association_unassociated_process_apdu(ctx, apdu);
+        break;
+    case fsm_state_associating:
+        // The associating state is not used by manager
+        break;
+    case fsm_state_operating:
+        operating_process_apdu(ctx, apdu);
+        break;
+    case fsm_state_disassociating:
+        disassociating_process_apdu(ctx, apdu);
+        break;
+    case fsm_state_checking_config:
+        configuring_checking_state_process_apdu(ctx, apdu);
+        break;
+    case fsm_state_waiting_for_config:
+        configuring_waiting_state_process_apdu(ctx, apdu);
+        break;
+    default:
+        ERROR(" service error: Invalid machine state ");
+        // put in an acceptable state and then disconnect
+        ctx->fsm->state = fsm_state_unassociated;
+        communication_fire_transport_disconnect_evt(ctx);
+    }
 }
 
 /**
@@ -775,19 +815,22 @@ static void communication_process_apdu_manager(Context *ctx, APDU *apdu)
  */
 void communication_process_apdu(Context *ctx, APDU *apdu)
 {
-	// thread-safe block - start
-	communication_lock(ctx);
+    // thread-safe block - start
+    communication_lock(ctx);
 
-	DEBUG(" communication: current sm(%s) ", fsm_get_current_state_name(ctx->fsm));
+    DEBUG(" communication: current sm(%s) ", fsm_get_current_state_name(ctx->fsm));
 
-	if (ctx->type & AGENT_CONTEXT) {
-		communication_process_apdu_agent(ctx, apdu);
-	} else {
-		communication_process_apdu_manager(ctx, apdu);
-	}
+    if (ctx->type & AGENT_CONTEXT)
+    {
+        communication_process_apdu_agent(ctx, apdu);
+    }
+    else
+    {
+        communication_process_apdu_manager(ctx, apdu);
+    }
 
-	communication_unlock(ctx);
-	// thread-safe block - end
+    communication_unlock(ctx);
+    // thread-safe block - end
 }
 
 /**
@@ -800,41 +843,41 @@ void communication_process_apdu(Context *ctx, APDU *apdu)
  */
 int communication_send_apdu(Context *ctx, APDU *apdu)
 {
-	CommunicationPlugin *comm_plugin =
-		communication_get_plugin(ctx->id.plugin);
+    CommunicationPlugin *comm_plugin =
+        communication_get_plugin(ctx->id.plugin);
 
-	if (!comm_plugin)
-		return 0;
+    if (!comm_plugin)
+        return 0;
 
-	// thread-safe block - start
-	communication_lock(ctx);
+    // thread-safe block - start
+    communication_lock(ctx);
 
-	DEBUG(" communication: sending APDU ");
+    DEBUG(" communication: sending APDU ");
 
-	ByteStreamWriter *encoded_apdu = NULL;
-	encoded_apdu = byte_stream_writer_instance(apdu->length + 4/*apdu header*/);
+    ByteStreamWriter *encoded_apdu = NULL;
+    encoded_apdu = byte_stream_writer_instance(apdu->length + 4/*apdu header*/);
 
-	encode_apdu(encoded_apdu, apdu);
+    encode_apdu(encoded_apdu, apdu);
 
 #ifdef APDU_DUMP
-	ioutil_buffer_to_file("apdu_dump", 5, (unsigned char *) "send ", 1);
-	ioutil_buffer_to_file("apdu_dump", encoded_apdu->size, encoded_apdu->buffer, 1);
-	ioutil_buffer_to_file("apdu_dump", 1, (unsigned char *) "\n", 1);
+    ioutil_buffer_to_file("apdu_dump", 5, (unsigned char *) "send ", 1);
+    ioutil_buffer_to_file("apdu_dump", encoded_apdu->size, encoded_apdu->buffer, 1);
+    ioutil_buffer_to_file("apdu_dump", 1, (unsigned char *) "\n", 1);
 #endif
 
-	// send encoded_apdu bytes
-	int return_val = comm_plugin->network_send_apdu_stream(ctx, encoded_apdu);
+    // send encoded_apdu bytes
+    int return_val = comm_plugin->network_send_apdu_stream(ctx, encoded_apdu);
 
-	del_byte_stream_writer(encoded_apdu, 1);
+    del_byte_stream_writer(encoded_apdu, 1);
 
-	DEBUG(" communication: APDU sent ");
-	communication_unlock(ctx);
-	// thread-safe block - end
+    DEBUG(" communication: APDU sent ");
+    communication_unlock(ctx);
+    // thread-safe block - end
 
-	if (return_val == NETWORK_ERROR_NONE)
-		return 1;
+    if (return_val == NETWORK_ERROR_NONE)
+        return 1;
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -845,24 +888,24 @@ int communication_send_apdu(Context *ctx, APDU *apdu)
  */
 void communication_abort(Context *ctx, Abort_reason reason)
 {
-	CommunicationPlugin *comm_plugin =
-		communication_get_plugin(ctx->id.plugin);
+    CommunicationPlugin *comm_plugin =
+        communication_get_plugin(ctx->id.plugin);
 
-	if (!comm_plugin)
-		return;
+    if (!comm_plugin)
+        return;
 
-	// thread-safe block - start
-	communication_lock(ctx);
+    // thread-safe block - start
+    communication_lock(ctx);
 
-	APDU apdu;
-	apdu.choice = ABRT_CHOSEN;
-	apdu.length = sizeof(ABRT_apdu);
-	apdu.u.abrt.reason = reason;
+    APDU apdu;
+    apdu.choice = ABRT_CHOSEN;
+    apdu.length = sizeof(ABRT_apdu);
+    apdu.u.abrt.reason = reason;
 
-	communication_send_apdu(ctx, &apdu);
+    communication_send_apdu(ctx, &apdu);
 
-	communication_unlock(ctx);
-	// thread-safe block - end
+    communication_unlock(ctx);
+    // thread-safe block - end
 }
 
 /**
@@ -874,15 +917,15 @@ void communication_abort(Context *ctx, Abort_reason reason)
  * @param data not used
  */
 void communication_abort_undefined_reason_tx(Context *ctx, fsm_events evt,
-		FSMEventData *data)
+        FSMEventData *data)
 {
-	// thread-safe block - start
-	communication_lock(ctx);
+    // thread-safe block - start
+    communication_lock(ctx);
 
-	communication_abort(ctx, ABORT_REASON_UNDEFINED);
+    communication_abort(ctx, ABORT_REASON_UNDEFINED);
 
-	communication_unlock(ctx);
-	// thread-safe block - end
+    communication_unlock(ctx);
+    // thread-safe block - end
 }
 
 /**
@@ -895,20 +938,21 @@ void communication_abort_undefined_reason_tx(Context *ctx, fsm_events evt,
  * @param data should inform the received APDU of type PRST
  */
 void communication_check_invoke_id_abort_tx(Context *ctx, fsm_events evt,
-		FSMEventData *data)
+        FSMEventData *data)
 {
-	// thread-safe block - start
-	communication_lock(ctx);
+    // thread-safe block - start
+    communication_lock(ctx);
 
-	if (data != NULL && data->received_apdu != NULL
-	    && data->received_apdu->choice == PRST_CHOSEN) {
-		APDU *apdu = data->received_apdu;
-		DATA_apdu *data_apdu = encode_get_data_apdu(&apdu->u.prst);
-		service_check_known_invoke_id(ctx, data_apdu);
-	}
+    if (data != NULL && data->received_apdu != NULL
+            && data->received_apdu->choice == PRST_CHOSEN)
+    {
+        APDU *apdu = data->received_apdu;
+        DATA_apdu *data_apdu = encode_get_data_apdu(&apdu->u.prst);
+        service_check_known_invoke_id(ctx, data_apdu);
+    }
 
-	communication_unlock(ctx);
-	// thread-safe block - end
+    communication_unlock(ctx);
+    // thread-safe block - end
 }
 
 /**
@@ -920,15 +964,15 @@ void communication_check_invoke_id_abort_tx(Context *ctx, fsm_events evt,
  * @param data event data
  */
 void communication_disconnect_tx(Context *ctx, fsm_events evt,
-				 FSMEventData *data)
+                                 FSMEventData *data)
 {
-	// thread-safe block - start
-	communication_lock(ctx);
+    // thread-safe block - start
+    communication_lock(ctx);
 
-	DEBUG(" communication: disconnected ");
+    DEBUG(" communication: disconnected ");
 
-	communication_unlock(ctx);
-	// thread-safe block - end
+    communication_unlock(ctx);
+    // thread-safe block - end
 }
 
 /**
@@ -936,25 +980,25 @@ void communication_disconnect_tx(Context *ctx, fsm_events evt,
  */
 void fill_roer_apdu(APDU *apdu, DATA_apdu *data_apdu, InvokeIDType invoke_id, ErrorResult *error)
 {
-	apdu->choice = PRST_CHOSEN;
+    apdu->choice = PRST_CHOSEN;
 
-	data_apdu->invoke_id = invoke_id;
-	data_apdu->message.choice = ROER_CHOSEN;
+    data_apdu->invoke_id = invoke_id;
+    data_apdu->message.choice = ROER_CHOSEN;
 
-	data_apdu->message.u.roer = *error;
+    data_apdu->message.u.roer = *error;
 
-	data_apdu->message.length = data_apdu->message.u.roer.parameter.length +
-				   	sizeof(intu16) +	// parameter.length
-					sizeof(intu16);		// ERROR
+    data_apdu->message.length = data_apdu->message.u.roer.parameter.length +
+                                sizeof(intu16) +	// parameter.length
+                                sizeof(intu16);		// ERROR
 
-	apdu->u.prst.length = data_apdu->message.length +
-				sizeof(intu16) +		// message.length
-			     	sizeof(DATA_apdu_choice) +	// message.choice
-				sizeof(InvokeIDType);		// invoke id
+    apdu->u.prst.length = data_apdu->message.length +
+                          sizeof(intu16) +		// message.length
+                          sizeof(DATA_apdu_choice) +	// message.choice
+                          sizeof(InvokeIDType);		// invoke id
 
-	apdu->length = apdu->u.prst.length + sizeof(intu16);
+    apdu->length = apdu->u.prst.length + sizeof(intu16);
 
-	encode_set_data_apdu(&apdu->u.prst, data_apdu);
+    encode_set_data_apdu(&apdu->u.prst, data_apdu);
 }
 
 /**
@@ -967,17 +1011,17 @@ void fill_roer_apdu(APDU *apdu, DATA_apdu *data_apdu, InvokeIDType invoke_id, Er
  */
 static void communication_send_roer(Context *ctx, InvokeIDType invoke_id, ErrorResult *error)
 {
-	// thread-safe block - start
-	communication_lock(ctx);
+    // thread-safe block - start
+    communication_lock(ctx);
 
-	APDU apdu;
-	DATA_apdu data_apdu;
-	fill_roer_apdu(&apdu, &data_apdu, invoke_id, error);
+    APDU apdu;
+    DATA_apdu data_apdu;
+    fill_roer_apdu(&apdu, &data_apdu, invoke_id, error);
 
-	communication_send_apdu(ctx, &apdu);
+    communication_send_apdu(ctx, &apdu);
 
-	communication_unlock(ctx);
-	// thread-safe block - end
+    communication_unlock(ctx);
+    // thread-safe block - end
 }
 
 /**
@@ -985,23 +1029,23 @@ static void communication_send_roer(Context *ctx, InvokeIDType invoke_id, ErrorR
  */
 void fill_rorj_apdu(APDU *apdu, DATA_apdu *data_apdu, InvokeIDType invoke_id, RejectResult *error)
 {
-	apdu->choice = PRST_CHOSEN;
+    apdu->choice = PRST_CHOSEN;
 
-	data_apdu->invoke_id = invoke_id;
-	data_apdu->message.choice = RORJ_CHOSEN;
+    data_apdu->invoke_id = invoke_id;
+    data_apdu->message.choice = RORJ_CHOSEN;
 
-	data_apdu->message.u.rorj = *error;
+    data_apdu->message.u.rorj = *error;
 
-	data_apdu->message.length = sizeof(RorjProblem);
+    data_apdu->message.length = sizeof(RorjProblem);
 
-	apdu->u.prst.length = data_apdu->message.length +
-				sizeof(intu16) +		// message.length
-			     	sizeof(DATA_apdu_choice) +	// message.choice
-				sizeof(InvokeIDType);		// invoke id
+    apdu->u.prst.length = data_apdu->message.length +
+                          sizeof(intu16) +		// message.length
+                          sizeof(DATA_apdu_choice) +	// message.choice
+                          sizeof(InvokeIDType);		// invoke id
 
-	apdu->length = apdu->u.prst.length + sizeof(intu16);	// prst.length
+    apdu->length = apdu->u.prst.length + sizeof(intu16);	// prst.length
 
-	encode_set_data_apdu(&apdu->u.prst, data_apdu);
+    encode_set_data_apdu(&apdu->u.prst, data_apdu);
 }
 
 /**
@@ -1014,17 +1058,17 @@ void fill_rorj_apdu(APDU *apdu, DATA_apdu *data_apdu, InvokeIDType invoke_id, Re
  */
 static void communication_send_rorj(Context *ctx, InvokeIDType invoke_id, RejectResult *error)
 {
-	// thread-safe block - start
-	communication_lock(ctx);
+    // thread-safe block - start
+    communication_lock(ctx);
 
-	APDU apdu;
-	DATA_apdu data_apdu;
-	fill_rorj_apdu(&apdu, &data_apdu, invoke_id, error);
+    APDU apdu;
+    DATA_apdu data_apdu;
+    fill_rorj_apdu(&apdu, &data_apdu, invoke_id, error);
 
-	communication_send_apdu(ctx, &apdu);
+    communication_send_apdu(ctx, &apdu);
 
-	communication_unlock(ctx);
-	// thread-safe block - end
+    communication_unlock(ctx);
+    // thread-safe block - end
 }
 
 /**
@@ -1037,18 +1081,19 @@ static void communication_send_rorj(Context *ctx, InvokeIDType invoke_id, Reject
  */
 void communication_rorj_tx(Context *ctx, fsm_events evt, FSMEventData *data)
 {
-	// thread-safe block - start
-	communication_lock(ctx);
+    // thread-safe block - start
+    communication_lock(ctx);
 
-	if (data != NULL && data->choice == FSM_EVT_DATA_REJECT_RESULT) {
-		DATA_apdu *input_data_apdu = encode_get_data_apdu(
-						     &data->received_apdu->u.prst);
-		communication_send_rorj(ctx, input_data_apdu->invoke_id,
-					&data->u.reject_result);
-	}
+    if (data != NULL && data->choice == FSM_EVT_DATA_REJECT_RESULT)
+    {
+        DATA_apdu *input_data_apdu = encode_get_data_apdu(
+                                         &data->received_apdu->u.prst);
+        communication_send_rorj(ctx, input_data_apdu->invoke_id,
+                                &data->u.reject_result);
+    }
 
-	communication_unlock(ctx);
-	// thread-safe block - end
+    communication_unlock(ctx);
+    // thread-safe block - end
 }
 
 /**
@@ -1061,18 +1106,19 @@ void communication_rorj_tx(Context *ctx, fsm_events evt, FSMEventData *data)
  */
 void communication_roer_tx(Context *ctx, fsm_events evt, FSMEventData *data)
 {
-	// thread-safe block - start
-	communication_lock(ctx);
+    // thread-safe block - start
+    communication_lock(ctx);
 
-	if (data != NULL && data->choice == FSM_EVT_DATA_ERROR_RESULT) {
-		DATA_apdu *input_data_apdu = encode_get_data_apdu(
-						     &data->received_apdu->u.prst);
-		communication_send_roer(ctx, input_data_apdu->invoke_id,
-					&data->u.error_result);
-	}
+    if (data != NULL && data->choice == FSM_EVT_DATA_ERROR_RESULT)
+    {
+        DATA_apdu *input_data_apdu = encode_get_data_apdu(
+                                         &data->received_apdu->u.prst);
+        communication_send_roer(ctx, input_data_apdu->invoke_id,
+                                &data->u.error_result);
+    }
 
-	communication_unlock(ctx);
-	// thread-safe block - end
+    communication_unlock(ctx);
+    // thread-safe block - end
 }
 
 /**
@@ -1083,19 +1129,20 @@ void communication_roer_tx(Context *ctx, fsm_events evt, FSMEventData *data)
  */
 void communication_timeout(Context *ctx)
 {
-	// thread-safe block - start
-	communication_lock(ctx);
+    // thread-safe block - start
+    communication_lock(ctx);
 
-	if (ctx != NULL) {
-		communication_fire_evt(ctx, fsm_evt_ind_timeout, NULL);
-		if (ctx->type & MANAGER_CONTEXT)
-			manager_notify_evt_timeout(ctx);
-		else if (ctx->type & AGENT_CONTEXT)
-			agent_notify_evt_timeout(ctx);
-	}
+    if (ctx != NULL)
+    {
+        communication_fire_evt(ctx, fsm_evt_ind_timeout, NULL);
+        if (ctx->type & MANAGER_CONTEXT)
+            manager_notify_evt_timeout(ctx);
+        else if (ctx->type & AGENT_CONTEXT)
+            agent_notify_evt_timeout(ctx);
+    }
 
-	communication_unlock(ctx);
-	// thread-safe block - end
+    communication_unlock(ctx);
+    // thread-safe block - end
 }
 
 /**
@@ -1106,7 +1153,7 @@ void communication_timeout(Context *ctx)
  */
 int communication_is_roiv_type(DATA_apdu *data)
 {
-	return (data->message.choice & REMOTE_OPERATION_TYPE_MASK) == ROIV_TYPE;
+    return (data->message.choice & REMOTE_OPERATION_TYPE_MASK) == ROIV_TYPE;
 }
 
 /**
@@ -1117,7 +1164,7 @@ int communication_is_roiv_type(DATA_apdu *data)
  */
 int communication_is_rors_type(DATA_apdu *data)
 {
-	return (data->message.choice & REMOTE_OPERATION_TYPE_MASK) == RORS_TYPE;
+    return (data->message.choice & REMOTE_OPERATION_TYPE_MASK) == RORS_TYPE;
 }
 
 /**
@@ -1128,7 +1175,7 @@ int communication_is_rors_type(DATA_apdu *data)
  */
 int communication_is_roer_type(DATA_apdu *data)
 {
-	return (data->message.choice & REMOTE_OPERATION_TYPE_MASK) == ROER_TYPE;
+    return (data->message.choice & REMOTE_OPERATION_TYPE_MASK) == ROER_TYPE;
 }
 
 /**
@@ -1139,7 +1186,7 @@ int communication_is_roer_type(DATA_apdu *data)
  */
 int communication_is_rorj_type(DATA_apdu *data)
 {
-	return (data->message.choice & REMOTE_OPERATION_TYPE_MASK) == RORJ_TYPE;
+    return (data->message.choice & REMOTE_OPERATION_TYPE_MASK) == RORJ_TYPE;
 }
 
 /**
@@ -1150,16 +1197,16 @@ int communication_is_rorj_type(DATA_apdu *data)
  */
 fsm_states communication_get_state(Context *ctx)
 {
-	fsm_states state;
-	// thread-safe block - start
-	communication_lock(ctx);
+    fsm_states state;
+    // thread-safe block - start
+    communication_lock(ctx);
 
-	state = ctx->fsm->state;
+    state = ctx->fsm->state;
 
-	communication_unlock(ctx);
-	// thread-safe block - end
+    communication_unlock(ctx);
+    // thread-safe block - end
 
-	return state;
+    return state;
 }
 
 /**
@@ -1167,15 +1214,15 @@ fsm_states communication_get_state(Context *ctx)
  */
 char *communication_get_state_name(Context *ctx)
 {
-	// thread-safe block - start
-	communication_lock(ctx);
+    // thread-safe block - start
+    communication_lock(ctx);
 
-	char *ret = fsm_get_current_state_name(ctx->fsm);
+    char *ret = fsm_get_current_state_name(ctx->fsm);
 
-	communication_unlock(ctx);
-	// thread-safe block - end
+    communication_unlock(ctx);
+    // thread-safe block - end
 
-	return ret;
+    return ret;
 }
 
 /**
@@ -1189,25 +1236,26 @@ char *communication_get_state_name(Context *ctx)
  */
 static int communication_notify_state_transition_evt(Context *ctx, fsm_states previous, fsm_states next)
 {
-	// thread-safe block - begin
-	communication_lock(ctx);
+    // thread-safe block - begin
+    communication_lock(ctx);
 
-	int ret_val = 0;
-	//int i;
+    int ret_val = 0;
+    //int i;
 
-	//for (i = 0; i <  state_transition_listener_size; i++) {
-		StateTransitionListener *l = &state_transition_listener_list[ctx->id.plugin];
+    //for (i = 0; i <  state_transition_listener_size; i++) {
+    StateTransitionListener *l = &state_transition_listener_list[ctx->id.plugin];
 
-		if ((l->state == next || l->state == fsm_state_size) && l->handler != NULL) {
-			(l->handler)(ctx, previous, next);
-			ret_val = 1;
-		}
-		
-	//}
+    if ((l->state == next || l->state == fsm_state_size) && l->handler != NULL)
+    {
+        (l->handler)(ctx, previous, next);
+        ret_val = 1;
+    }
 
-	communication_unlock(ctx);
-	// thread-safe block - end
-	return ret_val;
+    //}
+
+    communication_unlock(ctx);
+    // thread-safe block - end
+    return ret_val;
 }
 
 /**
@@ -1218,11 +1266,11 @@ static int communication_notify_state_transition_evt(Context *ctx, fsm_states pr
  */
 static int get_connection_loop_active(Context *ctx)
 {
-	int ret = 0;
-	communication_lock(ctx);
-	ret = ctx->connection_loop_active;
-	communication_unlock(ctx);
-	return ret;
+    int ret = 0;
+    communication_lock(ctx);
+    ret = ctx->connection_loop_active;
+    communication_unlock(ctx);
+    return ret;
 }
 
 /**
@@ -1233,9 +1281,9 @@ static int get_connection_loop_active(Context *ctx)
  */
 static void set_connection_loop_active(Context *ctx, int val)
 {
-	communication_lock(ctx);
-	ctx->connection_loop_active = val;
-	communication_unlock(ctx);
+    communication_lock(ctx);
+    ctx->connection_loop_active = val;
+    communication_unlock(ctx);
 }
 
 /**
@@ -1246,33 +1294,36 @@ static void set_connection_loop_active(Context *ctx, int val)
  */
 void communication_connection_loop(Context *ctx)
 {
-	ContextId id = ctx->id;
+    ContextId id = ctx->id;
 
-	if (get_connection_loop_active(ctx))
-		return; // connection loop already running
+    if (get_connection_loop_active(ctx))
+        return; // connection loop already running
 
-	if (!communication_is_network_started(id)) {
-		ERROR(" The network layer is not initialized, call communication_network_start() first.");
-		return;
-	}
+    if (!communication_is_network_started(id))
+    {
+        ERROR(" The network layer is not initialized, call communication_network_start() first.");
+        return;
+    }
 
-	set_connection_loop_active(ctx, 1); // activate loop flag
+    set_connection_loop_active(ctx, 1); // activate loop flag
 
-	DEBUG(" communication:Waiting for data\n");
+    DEBUG(" communication:Waiting for data\n");
 
-	// context may become invalid right after wait_for_data_input,
-	// so we need so check it every loop, based on ID.
+    // context may become invalid right after wait_for_data_input,
+    // so we need so check it every loop, based on ID.
 
-	while ((ctx = context_get_and_lock(id))) {
-		if (!get_connection_loop_active(ctx)) {
-			context_unlock(ctx);
-			break;
-		}
+    while ((ctx = context_get_and_lock(id)))
+    {
+        if (!get_connection_loop_active(ctx))
+        {
+            context_unlock(ctx);
+            break;
+        }
 
-		communication_wait_for_data_input(ctx);
-		communication_read_input_stream(id);
-		context_unlock(ctx);
-	}
+        communication_wait_for_data_input(ctx);
+        communication_read_input_stream(id);
+        context_unlock(ctx);
+    }
 }
 
 
@@ -1282,7 +1333,7 @@ void communication_connection_loop(Context *ctx)
  */
 void communication_cancel_connection_loop(Context *ctx)
 {
-	set_connection_loop_active(ctx, 0);
+    set_connection_loop_active(ctx, 0);
 }
 
 /**
@@ -1297,16 +1348,16 @@ void communication_cancel_connection_loop(Context *ctx)
  */
 int communication_count_timeout(Context *ctx, timer_callback_function func, intu32 timeout)
 {
-	CommunicationPlugin *comm_plugin =
-		communication_get_plugin(ctx->id.plugin);
+    CommunicationPlugin *comm_plugin =
+        communication_get_plugin(ctx->id.plugin);
 
-	if (!comm_plugin)
-		return 0;
+    if (!comm_plugin)
+        return 0;
 
-	communication_reset_timeout(ctx);
-	ctx->timeout_action.func = func;
-	ctx->timeout_action.timeout = timeout;
-	return comm_plugin->timer_count_timeout(ctx);
+    communication_reset_timeout(ctx);
+    ctx->timeout_action.func = func;
+    ctx->timeout_action.timeout = timeout;
+    return comm_plugin->timer_count_timeout(ctx);
 }
 
 /**
@@ -1315,16 +1366,16 @@ int communication_count_timeout(Context *ctx, timer_callback_function func, intu
  */
 void communication_reset_timeout(Context *ctx)
 {
-	CommunicationPlugin *comm_plugin =
-		communication_get_plugin(ctx->id.plugin);
+    CommunicationPlugin *comm_plugin =
+        communication_get_plugin(ctx->id.plugin);
 
-	if (!comm_plugin)
-		return;
+    if (!comm_plugin)
+        return;
 
-	comm_plugin->timer_reset_timeout(ctx);
-	ctx->timeout_action.func = NULL;
-	ctx->timeout_action.timeout = 0;
-	ctx->timeout_action.id = 0;
+    comm_plugin->timer_reset_timeout(ctx);
+    ctx->timeout_action.func = NULL;
+    ctx->timeout_action.timeout = 0;
+    ctx->timeout_action.id = 0;
 }
 
 /**
@@ -1333,13 +1384,13 @@ void communication_reset_timeout(Context *ctx)
  */
 void communication_wait_for_timeout(Context *ctx)
 {
-	CommunicationPlugin *comm_plugin =
-		communication_get_plugin(ctx->id.plugin);
+    CommunicationPlugin *comm_plugin =
+        communication_get_plugin(ctx->id.plugin);
 
-	if (!comm_plugin)
-		return;
+    if (!comm_plugin)
+        return;
 
-	comm_plugin->timer_wait_for_timeout(ctx);
+    comm_plugin->timer_wait_for_timeout(ctx);
 }
 
 /**
@@ -1349,12 +1400,12 @@ void communication_wait_for_timeout(Context *ctx)
  */
 void req_association_release(Context *ctx)
 {
-	FSMEventData evt;
+    FSMEventData evt;
 
-	evt.choice = FSM_EVT_DATA_RELEASE_REQUEST_REASON;
-	evt.u.release_request_reason = RELEASE_REQUEST_REASON_NORMAL;
+    evt.choice = FSM_EVT_DATA_RELEASE_REQUEST_REASON;
+    evt.u.release_request_reason = RELEASE_REQUEST_REASON_NORMAL;
 
-	communication_fire_evt(ctx, fsm_evt_req_assoc_rel, &evt);
+    communication_fire_evt(ctx, fsm_evt_req_assoc_rel, &evt);
 }
 
 /** @} */

@@ -36,6 +36,7 @@
 #include "src/dim/nomenclature.h"
 #include "src/dim/mds.h"
 
+//Created for Castalia Simulator
 //default value is a non-confirmed event
 uint16_t event_conf_or_unconf_pulse_oximeter = ROIV_CMIP_EVENT_REPORT_CHOSEN;
 
@@ -261,7 +262,7 @@ static ConfigObjectList *pulse_oximeter_get_config_ID0191()
 	free(bsw);
 	bsw = byte_stream_writer_instance(12);
 	write_intu16(bsw, 2); // AttrValMap.count = 2
-	write_intu16(bsw, 8); // AttrValMap.length = 8 
+	write_intu16(bsw, 8); // AttrValMap.length = 8
 	write_intu16(bsw, MDC_ATTR_NU_VAL_OBS_BASIC);
 	write_intu16(bsw, 2); // value length = 2
 	write_intu16(bsw, MDC_ATTR_TIME_STAMP_ABS);
@@ -275,7 +276,7 @@ static ConfigObjectList *pulse_oximeter_get_config_ID0191()
 	write_intu16(bsw, 1); // SupplementalTypeList.count = 1
 	write_intu16(bsw, 4); // SupplementalTypeList.length = 4
 	write_intu16(bsw, MDC_PART_SCADA);
-	write_intu16(bsw, MDC_MODALITY_SPOT); 
+	write_intu16(bsw, MDC_MODALITY_SPOT);
 	attr_list1->value[4].attribute_value.value = bsw->buffer;
 
 	std_object_list->value[1].obj_class = MDC_MOC_VMO_METRIC_NU;
@@ -344,7 +345,7 @@ static ConfigObjectList *pulse_oximeter_get_config_ID0191()
 }
 
 /**
- * Populates an event report APDU. 
+ * Populates an event report APDU.
  */
 
 static DATA_apdu *pulse_oximeter_populate_event_report(void *edata)
@@ -406,7 +407,7 @@ static DATA_apdu *pulse_oximeter_populate_event_report(void *edata)
 
 	encode_basicnuobsvalue(writer1, &nu_beats);
 	encode_absolutetime(writer1, &nu_time);
-	
+
 	measure[0].obs_val_data.value = writer0->buffer;
 	measure[1].obs_val_data.value = writer1->buffer;
 

@@ -51,6 +51,9 @@
 /**
  * NULL communication plugin declaration
  */
+//Modified for Castalia Simulator
+// the order must be the same as
+// in CommunicationPlugin struct
 #define COMMUNICATION_PLUGIN_NULL {\
 			.network_init = NULL,\
 			.network_finalize = NULL,\

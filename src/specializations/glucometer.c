@@ -36,6 +36,7 @@
 #include "src/dim/nomenclature.h"
 #include "src/dim/mds.h"
 
+//Created for Castalia Simulator
 //default value is a non-confirmed event
 uint16_t event_conf_or_unconf_glucometer = ROIV_CMIP_EVENT_REPORT_CHOSEN;
 
@@ -116,7 +117,7 @@ static ConfigObjectList *glucometer_get_config_ID06A4()
 }
 
 /**
- * Populates an event report APDU. 
+ * Populates an event report APDU.
  */
 
 static DATA_apdu *glucometer_populate_event_report(void *edata)
@@ -168,7 +169,7 @@ static DATA_apdu *glucometer_populate_event_report(void *edata)
 
 	encode_basicnuobsvalue(writer0, &nu_capillary_whole_blood);
 	encode_absolutetime(writer0, &nu_time);
-	
+
 	measure[0].obs_val_data.value = writer0->buffer;
 
 

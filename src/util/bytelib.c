@@ -209,6 +209,7 @@ intu16 read_intu16(ByteStreamReader *stream, int *error)
 	return ret;
 }
 
+//Created for Castalia
 intu16 read_intu16_ByteStreamWriter(ByteStreamWriter *stream, int *error)
 {
 	intu16 ret = 0;
@@ -375,7 +376,7 @@ static int check_writer(ByteStreamWriter *stream, int need)
 		// keep old behavior, let it fail
 		return 0;
 	}
-	
+
 	// make more space
 	int increase = stream->buffer_size + need;
 	stream->buffer = realloc(stream->buffer, stream->buffer_size + increase);
@@ -421,7 +422,7 @@ intu32 write_intu8_many(ByteStreamWriter *stream, intu8 *data, int len, int *err
 		memcpy(stream->buffer + stream->size, data, len);
 		stream->size += len;
 		*error = 0;
-		return len; 
+		return len;
 	} else {
 		ERROR("write_intu8_many %d > %d", len, stream->buffer_size);
 		*error = 1;

@@ -172,6 +172,7 @@
 /** Measurement 2: Pulse rate */
 #define HANDLE_MEASUREMENT_2 2
 
+//Created for Castalia Simulator
 //default value is a non-confirmed event
 uint16_t event_conf_or_unconf_blood_pressure = ROIV_CMIP_EVENT_REPORT_CHOSEN;
 

@@ -78,45 +78,37 @@ static int agent_listener_count = 0;
 static AgentConfiguration *configuration = NULL;
 static unsigned int configuration_size = 0;
 
+//Modified for Castalia Simulator
 AgentConfiguration *agent_configuration(int nodeNumber)
 {
-	return &configuration[nodeNumber];
+    return &configuration[nodeNumber];
 }
 
-static void agent_handle_transition_evt(Context *ctx, fsm_states previous, fsm_states next);
+static void agent_handle_transition_evt(Context * ctx, fsm_states previous,
+                                        fsm_states next);
 
-/*!
- *
- * This API implements the IEEE 11073-20601 Standard and some device
- * specializations (IEEE 11073-104XX).
- *
- * The IEEE 11073-20601 defines a common framework for making an abstract
- * model of personal health data available in transport-independent
- * transfer syntax required to establish logical connections between
- * systems and to provide presentation capabilities and services needed
- * to perform communication tasks. The protocol is optimized to personal
- * health usage requirements and leverages commonly used methods and
- * tools wherever possible.
- *
- * The ISO/IEEE 11073 family of standards is based on an object-oriented
- * systems management paradigm. Data (measurement, state, and so on) are
- * modeled in the form of information objects that are accessed and
- * manipulated using an object access service protocol.
- *
- * The overall ISO/IEEE 11073 system model is divided into three principal
- * components: the DIM, the service model, and the communications model.
- * These three models work together to represent data, define data access and
- * command methodologies, and communicate the data from an agent to a agent.
- *
- * For more information about how to use IEEE standard implementation, see \ref Agent
- * implementation (including examples).
- *
- * For more information about how to add new device specializations at IEEE library
- * , see documentation on \ref SpecializationDescription "IEEE device specializations"
- */
+/* ! This API implements the IEEE 11073-20601 Standard and some device
+   specializations (IEEE 11073-104XX). The IEEE 11073-20601 defines a common
+   framework for making an abstract model of personal health data available in
+   transport-independent transfer syntax required to establish logical
+   connections between systems and to provide presentation capabilities and
+   services needed to perform communication tasks. The protocol is optimized
+   to personal health usage requirements and leverages commonly used methods
+   and tools wherever possible. The ISO/IEEE 11073 family of standards is
+   based on an object-oriented systems management paradigm. Data (measurement,
+   state, and so on) are modeled in the form of information objects that are
+   accessed and manipulated using an object access service protocol. The
+   overall ISO/IEEE 11073 system model is divided into three principal
+   components: the DIM, the service model, and the communications model. These
+   three models work together to represent data, define data access and
+   command methodologies, and communicate the data from an agent to a agent.
+   For more information about how to use IEEE standard implementation, see
+   \ref Agent implementation (including examples). For more information about
+   how to add new device specializations at IEEE library , see documentation
+   on \ref SpecializationDescription "IEEE device specializations" */
 
-int agent_notify_evt_device_connected(Context *ctx, const char *addr);
-int agent_notify_evt_device_disconnected(Context *ctx, const char *addr);
+int agent_notify_evt_device_connected(Context * ctx, const char *addr);
+int agent_notify_evt_device_disconnected(Context * ctx, const char *addr);
 
 /**
  * Initializes the agent on application load. This function also
@@ -129,54 +121,63 @@ int agent_notify_evt_device_disconnected(Context *ctx, const char *addr);
  * @param event_report_cb The event report callback
  * @param mds_data_cb Data callback
  */
-void agent_init(ContextId id, CommunicationPlugin **plugins, int config,
-		void *(*event_report_cb)(),
-		struct mds_system_data *(*mds_data_cb)())
+//Modified for Castalia Simulator
+void agent_init(ContextId id, CommunicationPlugin ** plugins, int config,
+                void *(*event_report_cb) (),
+                struct mds_system_data *(*mds_data_cb) ())
 {
-	
-	DEBUG("Agent Initialization");
-	unsigned int nodeNumber = (id.plugin+1)/2;
-	
-	if (!configuration){
-	configuration_size = nodeNumber;
-	configuration = (AgentConfiguration*) malloc(sizeof(AgentConfiguration)*(nodeNumber+1));
-	//Is the firts time here? so register!
-	// Register standard configurations for each specialization.
-	std_configurations_register_conf(
-		blood_pressure_monitor_create_std_config_ID02BC());
-	std_configurations_register_conf(
-		pulse_oximeter_create_std_config_ID0190());
-	std_configurations_register_conf(
-		pulse_oximeter_create_std_config_ID0191());
-	std_configurations_register_conf(
-		weighting_scale_create_std_config_ID05DC());
-	std_configurations_register_conf(
-		glucometer_create_std_config_ID06A4());
-	std_configurations_register_conf(
-		thermometer_create_std_config_ID0320());
-	std_configurations_register_conf(
-		basic_ECG_create_std_config_ID0258());
-	}else if (nodeNumber > configuration_size){
-	configuration_size = nodeNumber;
-	configuration = (AgentConfiguration*) realloc(configuration, sizeof(AgentConfiguration)*(nodeNumber+1));
-	}
-	configuration[nodeNumber].config = config;
-	configuration[nodeNumber].event_report_cb = event_report_cb;
-	configuration[nodeNumber].mds_data_cb = mds_data_cb;
-	
-	//while (*plugins) {
-	if (*plugins) {
-		(*plugins)->type |= AGENT_CONTEXT;
-		communication_add_plugin(id, *plugins);
-		++plugins;
-	}
 
-	// Listen to all communication state transitions
-	communication_add_state_transition_listener(id, fsm_state_size, &agent_handle_transition_evt);
-	communication_set_connection_listeners(&agent_notify_evt_device_connected,
-						&agent_notify_evt_device_disconnected);
+    DEBUG("Agent Initialization");
+    unsigned int nodeNumber = (id.plugin + 1) / 2;
 
-	
+    if (!configuration)
+    {
+        configuration_size = nodeNumber;
+        configuration =
+            (AgentConfiguration *) malloc(sizeof(AgentConfiguration) *
+                                          (nodeNumber + 1));
+        // Is the firts time here? so register!
+        // Register standard configurations for each specialization.
+        std_configurations_register_conf
+        (blood_pressure_monitor_create_std_config_ID02BC());
+        std_configurations_register_conf
+        (pulse_oximeter_create_std_config_ID0190());
+        std_configurations_register_conf
+        (pulse_oximeter_create_std_config_ID0191());
+        std_configurations_register_conf
+        (weighting_scale_create_std_config_ID05DC());
+        std_configurations_register_conf(glucometer_create_std_config_ID06A4
+                                         ());
+        std_configurations_register_conf(thermometer_create_std_config_ID0320
+                                         ());
+        std_configurations_register_conf(basic_ECG_create_std_config_ID0258());
+    }
+    else if (nodeNumber > configuration_size)
+    {
+        configuration_size = nodeNumber;
+        configuration =
+            (AgentConfiguration *) realloc(configuration,
+                                           sizeof(AgentConfiguration) *
+                                           (nodeNumber + 1));
+    }
+    configuration[nodeNumber].config = config;
+    configuration[nodeNumber].event_report_cb = event_report_cb;
+    configuration[nodeNumber].mds_data_cb = mds_data_cb;
+
+    if (*plugins)
+    {
+        (*plugins)->type |= AGENT_CONTEXT;
+        communication_add_plugin(id, *plugins);
+        ++plugins;
+    }
+
+    // Listen to all communication state transitions
+    communication_add_state_transition_listener(id, fsm_state_size,
+            &agent_handle_transition_evt);
+    communication_set_connection_listeners(&agent_notify_evt_device_connected,
+                                           &agent_notify_evt_device_disconnected);
+
+
 }
 
 /**
@@ -185,21 +186,22 @@ void agent_init(ContextId id, CommunicationPlugin **plugins, int config,
  * This method should be invoked in a thread safe execution.
  *
  */
+//Modified for Castalia Simulator
 void agent_finalize(ContextId id)
 {
-	static int finalize = 0;
-	DEBUG("Agent Finalization");
-	++finalize;
-	if (finalize == 5){
-	finalize = 0;
-	configuration_size = 0;
-	free(configuration);
-	configuration = NULL;
-	}
-
-	//agent_remove_all_listeners();
-	//std_configurations_destroy();
-	//communication_finalize(id);
+    static int finalize = 0;
+    DEBUG("Agent Finalization");
+    ++finalize;
+    /* Just free the configuration var when the
+     * last agent finalize.
+     * */
+    if (finalize == 5)
+    {
+        finalize = 0;
+        configuration_size = 0;
+        free(configuration);
+        configuration = NULL;
+    }
 }
 
 
@@ -211,36 +213,36 @@ void agent_finalize(ContextId id)
  * @param listener the listen to be added.
  * @return 1 if operation succeeds, 0 if not.
  */
+//Modified for Castalia Simulator
 int agent_add_listener(ContextId id, AgentListener listener)
 {
 
-	// test if there is not elements in the list
-	unsigned int size = agent_listener_count;
-if (size == 0) {
-		agent_listener_list = malloc(sizeof(struct AgentListener));
+    // test if there is not elements in the list
+    unsigned int size = agent_listener_count;
+    if (size == 0)
+    {
+        agent_listener_list = malloc(sizeof(struct AgentListener));
 
-	} 
-	if (size < id.plugin) { // change the list size
-		agent_listener_list = realloc(agent_listener_list,
-						sizeof(struct AgentListener)
-						* (id.plugin + 1));
-	agent_listener_count = id.plugin;
-	}
+    }
+    if (size < id.plugin)
+    {
+        // change the list size
+        agent_listener_list = realloc(agent_listener_list,
+                                      sizeof(struct AgentListener)
+                                      * (id.plugin + 1));
+        agent_listener_count = id.plugin;
+    }
 
-	// add element to list
+    // add element to list
 
-	if (agent_listener_list == NULL) {
-		return 0;
-	}
+    if (agent_listener_list == NULL)
+    {
+        return 0;
+    }
 
-	agent_listener_list[id.plugin] = listener;
-
-	//agent_listener_count++;
-
-	return 1;
-
+    agent_listener_list[id.plugin] = listener;
+    return 1;
 }
-
 
 /**
  * Removes all agent's listeners
@@ -249,15 +251,17 @@ if (size == 0) {
  */
 void agent_remove_all_listeners()
 {
-	if (agent_listener_list != NULL) {
-		agent_listener_count = 0;
-		free(agent_listener_list);
-		agent_listener_list = NULL;
-	}
-	if (configuration != NULL){
-	free(configuration);
-	configuration = NULL;
-	}
+    if (agent_listener_list != NULL)
+    {
+        agent_listener_count = 0;
+        free(agent_listener_list);
+        agent_listener_list = NULL;
+    }
+    if (configuration != NULL)
+    {
+        free(configuration);
+        configuration = NULL;
+    }
 }
 
 /**
@@ -268,22 +272,20 @@ void agent_remove_all_listeners()
  * @param ctx
  * @return 1 if any listener catches the notification, 0 if not
  */
-int agent_notify_evt_device_associated(Context *ctx)
+//Modified for Castalia Simulator
+int agent_notify_evt_device_associated(Context * ctx)
 {
-	int ret_val = 0;
-	//int i;
+    int ret_val = 0;
+    AgentListener *l = &agent_listener_list[ctx->id.plugin];
 
-	//for (i = 0; i < agent_listener_count; i++) {
-		AgentListener *l = &agent_listener_list[ctx->id.plugin];
-
-		if (l != NULL && l->device_associated != NULL) {
-			(l->device_associated)(ctx);
-			ret_val = 1;
-		}
-	//}
-
-	return ret_val;
+    if (l != NULL && l->device_associated != NULL)
+    {
+        (l->device_associated) (ctx);
+        ret_val = 1;
+    }
+    return ret_val;
 }
+
 
 /**
  * Notifies 'device connected'  event.
@@ -294,21 +296,19 @@ int agent_notify_evt_device_associated(Context *ctx)
  * @param addr
  * @return 1 if any listener catches the notification, 0 if not
  */
-int agent_notify_evt_device_connected(Context *ctx, const char *addr)
+//Modified for Castalia Simulator
+int agent_notify_evt_device_connected(Context * ctx, const char *addr)
 {
-	int ret_val = 0;
-	//int i;
+    int ret_val = 0;
+    AgentListener *l = &agent_listener_list[ctx->id.plugin];
 
-	//for (i = 0; i < agent_listener_count; i++) {
-		AgentListener *l = &agent_listener_list[ctx->id.plugin];
+    if (l != NULL && l->device_connected != NULL)
+    {
+        (l->device_connected) (ctx, addr);
+        ret_val = 1;
+    }
 
-		if (l != NULL && l->device_connected != NULL) {
-			(l->device_connected)(ctx, addr);
-			ret_val = 1;
-		}
-	//}
-
-	return ret_val;
+    return ret_val;
 }
 
 /**
@@ -320,21 +320,23 @@ int agent_notify_evt_device_connected(Context *ctx, const char *addr)
  * @param addr
  * @return 1 if any listener catches the notification, 0 if not
  */
-int agent_notify_evt_device_disconnected(Context *ctx, const char *addr)
+//Modified for Castalia Simulator
+int agent_notify_evt_device_disconnected(Context * ctx, const char *addr)
 {
-	int ret_val = 0;
-	//int i;
+    int ret_val = 0;
+    // int i;
 
-	//for (i = 0; i < agent_listener_count; i++) {
-		AgentListener *l = &agent_listener_list[ctx->id.plugin];
+    // for (i = 0; i < agent_listener_count; i++) {
+    AgentListener *l = &agent_listener_list[ctx->id.plugin];
 
-		if (l != NULL && l->device_disconnected != NULL) {
-			(l->device_disconnected)(ctx, addr);
-			ret_val = 1;
-		}
-	//}
+    if (l != NULL && l->device_disconnected != NULL)
+    {
+        (l->device_disconnected) (ctx, addr);
+        ret_val = 1;
+    }
+    // }
 
-	return ret_val;
+    return ret_val;
 }
 
 /**
@@ -345,21 +347,23 @@ int agent_notify_evt_device_disconnected(Context *ctx, const char *addr)
  * @param ctx
  * @return 1 if any listener catches the notification, 0 if not
  */
-int agent_notify_evt_device_unavailable(Context *ctx)
+//Modified for Castalia Simulator
+int agent_notify_evt_device_unavailable(Context * ctx)
 {
-	int ret_val = 0;
-	//int i;
+    int ret_val = 0;
+    // int i;
 
-	//for (i = 0; i < agent_listener_count; i++) {
-		AgentListener *l = &agent_listener_list[ctx->id.plugin];
+    // for (i = 0; i < agent_listener_count; i++) {
+    AgentListener *l = &agent_listener_list[ctx->id.plugin];
 
-		if (l != NULL && l->device_unavailable != NULL) {
-			(l->device_unavailable)(ctx);
-			ret_val = 1;
-		}
-	//}
+    if (l != NULL && l->device_unavailable != NULL)
+    {
+        (l->device_unavailable) (ctx);
+        ret_val = 1;
+    }
+    // }
 
-	return ret_val;
+    return ret_val;
 }
 
 
@@ -371,21 +375,23 @@ int agent_notify_evt_device_unavailable(Context *ctx)
  * @param ctx current context
  * @return 1 if any listener catches the notification, 0 if not
  */
-int agent_notify_evt_timeout(Context *ctx)
+//Modified for Castalia Simulator
+int agent_notify_evt_timeout(Context * ctx)
 {
-	int ret_val = 0;
-	//int i;
+    int ret_val = 0;
+    // int i;
 
-	//for (i = 0; i < agent_listener_count; i++) {
-		AgentListener *l = &agent_listener_list[ctx->id.plugin];
+    // for (i = 0; i < agent_listener_count; i++) {
+    AgentListener *l = &agent_listener_list[ctx->id.plugin];
 
-		if (l != NULL && l->timeout != NULL) {
-			(l->timeout)(ctx);
-			ret_val = 1;
-		}
-	//}
+    if (l != NULL && l->timeout != NULL)
+    {
+        (l->timeout) (ctx);
+        ret_val = 1;
+    }
+    // }
 
-	return ret_val;
+    return ret_val;
 }
 
 /**
@@ -393,29 +399,35 @@ int agent_notify_evt_timeout(Context *ctx)
  * is initialized and the communication will be ready to
  * read/send data.
  */
+//Modified for Castalia Simulator
 void agent_start(ContextId id)
 {
-	// kill any previous connection
-	if (communication_is_network_started(id)) {
-		DEBUG("Agent restarting...");
-		agent_stop(id);
-	} else {
-		DEBUG("Agent starting...");
-	}
+    // kill any previous connection
+    if (communication_is_network_started(id))
+    {
+        DEBUG("Agent restarting...");
+        agent_stop(id);
+    }
+    else
+    {
+        DEBUG("Agent starting...");
+    }
 
-	communication_network_start(id);
+    communication_network_start(id);
 }
 
 
 /**
  * Stop to listen agents, all open network connections will be closed
  */
+//Modified for Castalia Simulator
 void agent_stop(ContextId id)
 {
-	if (communication_is_network_started(id)) {
-		DEBUG("Agent stopping...");
-		communication_network_stop(id);
-	}
+    if (communication_is_network_started(id))
+    {
+        DEBUG("Agent stopping...");
+        communication_network_stop(id);
+    }
 }
 
 /**
@@ -427,12 +439,13 @@ void agent_stop(ContextId id)
  */
 void agent_connection_loop(ContextId context_id)
 {
-	Context *ctx;
-	while ((ctx = context_get_and_lock(context_id))) {
-		communication_connection_loop(ctx);
-		context_unlock(ctx);
-		sleep(1);
-	}
+    Context *ctx;
+    while ((ctx = context_get_and_lock(context_id)))
+    {
+        communication_connection_loop(ctx);
+        context_unlock(ctx);
+        sleep(1);
+    }
 }
 
 /**
@@ -441,12 +454,13 @@ void agent_connection_loop(ContextId context_id)
  */
 void agent_request_association_release(ContextId id)
 {
-	Context *ctx = context_get_and_lock(id);
+    Context *ctx = context_get_and_lock(id);
 
-	if (ctx) {
-		req_association_release(ctx);
-		context_unlock(ctx);
-	}
+    if (ctx)
+    {
+        req_association_release(ctx);
+        context_unlock(ctx);
+    }
 }
 
 /**
@@ -455,12 +469,13 @@ void agent_request_association_release(ContextId id)
  */
 void agent_request_association_abort(ContextId id)
 {
-	Context *ctx = context_get_and_lock(id);
+    Context *ctx = context_get_and_lock(id);
 
-	if (ctx) {
-		communication_fire_evt(ctx, fsm_evt_req_assoc_abort, NULL);
-		context_unlock(ctx);
-	}
+    if (ctx)
+    {
+        communication_fire_evt(ctx, fsm_evt_req_assoc_abort, NULL);
+        context_unlock(ctx);
+    }
 }
 
 
@@ -472,24 +487,28 @@ void agent_request_association_abort(ContextId id)
  * @param previous the previous FSM state.
  * @param next the next FSM state.
  */
-void agent_handle_transition_evt(Context *ctx, fsm_states previous, fsm_states next)
+void agent_handle_transition_evt(Context * ctx, fsm_states previous,
+                                 fsm_states next)
 {
-	DEBUG("agent: handling transition event");
+    DEBUG("agent: handling transition event");
 
-	if (previous == fsm_state_operating && next != previous) {
-		DEBUG(" agent: Notify device unavailable.\n");
-		// Exiting operating state
-		agent_notify_evt_device_unavailable(ctx);
-	}
+    if (previous == fsm_state_operating && next != previous)
+    {
+        DEBUG(" agent: Notify device unavailable.\n");
+        // Exiting operating state
+        agent_notify_evt_device_unavailable(ctx);
+    }
 
-	if (previous != next && next == fsm_state_operating) {
-		agent_notify_evt_device_associated(ctx);
-	}
+    if (previous != next && next == fsm_state_operating)
+    {
+        agent_notify_evt_device_associated(ctx);
+    }
 
-	if (next == fsm_state_config_sending) {
-		// provoke it to go to waiting_approval
-		communication_fire_evt(ctx, fsm_evt_req_send_config, NULL);
-	}
+    if (next == fsm_state_config_sending)
+    {
+        // provoke it to go to waiting_approval
+        communication_fire_evt(ctx, fsm_evt_req_send_config, NULL);
+    }
 }
 
 /**
@@ -499,13 +518,14 @@ void agent_handle_transition_evt(Context *ctx, fsm_states previous, fsm_states n
  */
 void agent_associate(ContextId id)
 {
-	DEBUG(" agent: Move state machine to init assoc");
-	Context *ctx = context_get_and_lock(id);
+    DEBUG(" agent: Move state machine to init assoc");
+    Context *ctx = context_get_and_lock(id);
 
-	if (ctx) {
-		communication_fire_evt(ctx, fsm_evt_req_assoc, NULL);
-		context_unlock(ctx);
-	}
+    if (ctx)
+    {
+        communication_fire_evt(ctx, fsm_evt_req_assoc, NULL);
+        context_unlock(ctx);
+    }
 }
 
 /**
@@ -515,13 +535,14 @@ void agent_associate(ContextId id)
  */
 void agent_disconnect(ContextId id)
 {
-	DEBUG(" agent: terminate conn");
-	Context *ctx = context_get_and_lock(id);
+    DEBUG(" agent: terminate conn");
+    Context *ctx = context_get_and_lock(id);
 
-	if (ctx) {
-		communication_force_disconnect(ctx);
-		context_unlock(ctx);
-	}
+    if (ctx)
+    {
+        communication_force_disconnect(ctx);
+        context_unlock(ctx);
+    }
 }
 
 /**
@@ -531,12 +552,13 @@ void agent_disconnect(ContextId id)
  */
 void agent_send_data(ContextId id)
 {
-	Context *ctx = context_get_and_lock(id);
+    Context *ctx = context_get_and_lock(id);
 
-	if (ctx) {
-		communication_fire_evt(ctx, fsm_evt_req_send_event, NULL);
-		context_unlock(ctx);
-	}
+    if (ctx)
+    {
+        communication_fire_evt(ctx, fsm_evt_req_send_event, NULL);
+        context_unlock(ctx);
+    }
 }
 
 /** @} */

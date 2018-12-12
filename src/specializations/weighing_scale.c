@@ -40,6 +40,7 @@
 /** Measurement 1: Weight */
 #define HANDLE_MEASUREMENT_1 1
 
+//Created for Castalia Simulator
 //default value is a non-confirmed event
 uint16_t event_conf_or_unconf_weighting_scale = ROIV_CMIP_EVENT_REPORT_CHOSEN;
 

@@ -47,40 +47,43 @@
  * @{
  */
 
-/*See Scale and range specification example, pg 151, Annex B, from Optimized Exchange Protocol 20601 */
-/*
- * M = (upper-absolute-value – lower-absolute-value) / (upper-scaled-value – lower-scaled-value) 
+/**
+ *   See Scale and range specification example, page 151, Annex B, from Optimized Exchange Protocol 20601 */
+/**
+ * M = (upper-absolute-value – lower-absolute-value) / (upper-scaled-value – lower-scaled-value)
  * B = upper-absolute-value – (M × upper-scaled-value)
  * */
 
-//(2.0-(-2.0))/(800.0-0.0) = 0,005
+/** M  = (2.0-(-2.0))/(800.0-0.0) = 0,005*/
 static const double M = 0.005;
-////2.0-(M*800.0) = -2
+/** B = 2.0-(M*800.0) = -2*/
 static const double B = -2.000;
 
-static char retstr[700];//used to store the result string (samples strings)
+//used to store the result string (samples strings)
+static char retstr[700];
 
+//Created for Castalia
 static char* sa_convert_scaled_values2absolute(char* str)
 {
-	int i = 0;
-	//clean the retstr var
-	for (i = 0; i < 700; i++)
-	{
-		retstr[i] = '\0';
-	}
-	char c[10];//used to store temporary the obtained value
-	double X;
-	double Y;
-	//we have 80 samples trasmitted each time
-	for (i = 0; i < 80; i++)
-	{
-		intu16 ret = ntohs(*((intu16 *) (str + (i*2))));
-		sprintf(c, "%u", ret);
-		X = (double) atoi(c);
-		Y = ((M * X) + B);
-		sprintf(retstr, "%s %.3f",retstr,Y);
-	}
-	return retstr;
+    int i = 0;
+    //clean the retstr var
+    for (i = 0; i < 700; i++)
+    {
+        retstr[i] = '\0';
+    }
+    char c[10];//used to store temporary the obtained value
+    double X;
+    double Y;
+    //we have 80 samples trasmitted each time
+    for (i = 0; i < 80; i++)
+    {
+        intu16 ret = ntohs(*((intu16 *) (str + (i*2))));
+        sprintf(c, "%u", ret);
+        X = (double) atoi(c);
+        Y = ((M * X) + B);
+        sprintf(retstr, "%s %.3f",retstr,Y);
+    }
+    return retstr;
 }
 
 static void read_entries(DataEntry *values, int size, StringBuffer *sb);
@@ -93,28 +96,31 @@ static void read_entries(DataEntry *values, int size, StringBuffer *sb);
  */
 static void describe_simple_entry(SimpleDataEntry *simple, StringBuffer *sb)
 {
-	if (!simple->name || !simple->type || !simple->value) {
-		// A malformed message might generate empty Data Entries
-		strbuff_cat(sb, "simple: {}");
-		return;
-	}
+    if (!simple->name || !simple->type || !simple->value)
+    {
+        // A malformed message might generate empty Data Entries
+        strbuff_cat(sb, "simple: {}");
+        return;
+    }
 
-	strbuff_cat(sb, "\"simple\": {");
-	strbuff_cat(sb, "\"name\": \"");
-	strbuff_cat(sb, simple->name);
-	strbuff_cat(sb, "\", ");
-	strbuff_cat(sb, "\"type\": \"");
-	strbuff_cat(sb, simple->type);
-	strbuff_cat(sb, "\", ");
-	strbuff_cat(sb, "\"value\": \"");
-	//modified by Robson
-	if(!strcmp(simple->name,"Simple-Sa-Observed-Value")){
-	strbuff_cat(sb, sa_convert_scaled_values2absolute(simple->value));
-	}else
-	strbuff_cat(sb, simple->value);
-	
-	strbuff_cat(sb, "\"");
-	strbuff_cat(sb, "}");
+    strbuff_cat(sb, "\"simple\": {");
+    strbuff_cat(sb, "\"name\": \"");
+    strbuff_cat(sb, simple->name);
+    strbuff_cat(sb, "\", ");
+    strbuff_cat(sb, "\"type\": \"");
+    strbuff_cat(sb, simple->type);
+    strbuff_cat(sb, "\", ");
+    strbuff_cat(sb, "\"value\": \"");
+    //Modified for Castalia Simulator
+    if(!strcmp(simple->name,"Simple-Sa-Observed-Value"))
+    {
+        strbuff_cat(sb, sa_convert_scaled_values2absolute(simple->value));
+    }
+    else
+        strbuff_cat(sb, simple->value);
+
+    strbuff_cat(sb, "\"");
+    strbuff_cat(sb, "}");
 }
 
 /**
@@ -125,21 +131,22 @@ static void describe_simple_entry(SimpleDataEntry *simple, StringBuffer *sb)
  */
 static void describe_cmp_entry(CompoundDataEntry *cmp, StringBuffer *sb)
 {
-	if (!cmp->name || !cmp->entries) {
-		// A malformed message might generate empty Data Entries
-		strbuff_cat(sb, "\"compound\": {}");
-		return;
-	}
+    if (!cmp->name || !cmp->entries)
+    {
+        // A malformed message might generate empty Data Entries
+        strbuff_cat(sb, "\"compound\": {}");
+        return;
+    }
 
-	strbuff_cat(sb, "\"compound\": { ");
-	strbuff_cat(sb, "\"name\": \"");
-	strbuff_cat(sb, cmp->name);
-	strbuff_cat(sb, "\", ");
-	strbuff_cat(sb, "\"entries\": ");
+    strbuff_cat(sb, "\"compound\": { ");
+    strbuff_cat(sb, "\"name\": \"");
+    strbuff_cat(sb, cmp->name);
+    strbuff_cat(sb, "\", ");
+    strbuff_cat(sb, "\"entries\": ");
 
-	read_entries(cmp->entries, cmp->entries_count, sb);
+    read_entries(cmp->entries, cmp->entries_count, sb);
 
-	strbuff_cat(sb, "}");
+    strbuff_cat(sb, "}");
 }
 
 /**
@@ -151,30 +158,34 @@ static void describe_cmp_entry(CompoundDataEntry *cmp, StringBuffer *sb)
 static void describe_meta_data(DataEntry *data, StringBuffer *sb)
 {
 
-	if (data != NULL && data->meta_data.size > 0 && data->meta_data.values
-	    != NULL) {
+    if (data != NULL && data->meta_data.size > 0 && data->meta_data.values
+            != NULL)
+    {
 
-		strbuff_cat(sb, "\"meta_data\": [");
-		int i = 0;
+        strbuff_cat(sb, "\"meta_data\": [");
+        int i = 0;
 
-		for (i = 0; i < data->meta_data.size; i++) {
-			MetaAtt *meta = &data->meta_data.values[i];
+        for (i = 0; i < data->meta_data.size; i++)
+        {
+            MetaAtt *meta = &data->meta_data.values[i];
 
-			if (meta != NULL && meta->name != NULL) {
-				strbuff_cat(sb, "{\"name\": \"");
-				strbuff_cat(sb, meta->name);
-				strbuff_cat(sb, "\", \"value\": \"");
-				strbuff_cat(sb, meta->value);
-				strbuff_cat(sb, "\"}");
+            if (meta != NULL && meta->name != NULL)
+            {
+                strbuff_cat(sb, "{\"name\": \"");
+                strbuff_cat(sb, meta->name);
+                strbuff_cat(sb, "\", \"value\": \"");
+                strbuff_cat(sb, meta->value);
+                strbuff_cat(sb, "\"}");
 
-				if (i < data->meta_data.size - 1) {
-					strbuff_cat(sb, ", ");
-				}
-			}
-		}
+                if (i < data->meta_data.size - 1)
+                {
+                    strbuff_cat(sb, ", ");
+                }
+            }
+        }
 
-		strbuff_cat(sb, "], ");
-	}
+        strbuff_cat(sb, "], ");
+    }
 }
 
 /**
@@ -185,18 +196,22 @@ static void describe_meta_data(DataEntry *data, StringBuffer *sb)
  */
 static void describe_data_entry(DataEntry *data, StringBuffer *sb)
 {
-	if (data != NULL) {
-		strbuff_cat(sb, "{");
-		describe_meta_data(data, sb);
+    if (data != NULL)
+    {
+        strbuff_cat(sb, "{");
+        describe_meta_data(data, sb);
 
-		if (data->choice == SIMPLE_DATA_ENTRY) {
-			describe_simple_entry(&data->u.simple, sb);
-		} else if (data->choice == COMPOUND_DATA_ENTRY) {
-			describe_cmp_entry(&data->u.compound, sb);
-		}
+        if (data->choice == SIMPLE_DATA_ENTRY)
+        {
+            describe_simple_entry(&data->u.simple, sb);
+        }
+        else if (data->choice == COMPOUND_DATA_ENTRY)
+        {
+            describe_cmp_entry(&data->u.compound, sb);
+        }
 
-		strbuff_cat(sb, "}");
-	}
+        strbuff_cat(sb, "}");
+    }
 }
 
 /**
@@ -208,19 +223,21 @@ static void describe_data_entry(DataEntry *data, StringBuffer *sb)
  */
 static void read_entries(DataEntry *values, int size, StringBuffer *sb)
 {
-	int i;
-	strbuff_cat(sb, "[");
+    int i;
+    strbuff_cat(sb, "[");
 
-	for (i = 0; i < size; i++) {
-		describe_data_entry(&values[i], sb);
+    for (i = 0; i < size; i++)
+    {
+        describe_data_entry(&values[i], sb);
 
-		if (i < size - 1) {
-			strbuff_cat(sb, ", ");
-		}
+        if (i < size - 1)
+        {
+            strbuff_cat(sb, ", ");
+        }
 
-	}
+    }
 
-	strbuff_cat(sb, "] ");
+    strbuff_cat(sb, "] ");
 }
 
 
@@ -232,18 +249,19 @@ static void read_entries(DataEntry *values, int size, StringBuffer *sb)
  */
 char *json_encode_data_list(DataList *list)
 {
-	StringBuffer *sb = strbuff_new(100);
+    StringBuffer *sb = strbuff_new(100);
 
-	if (list != NULL && list->values != NULL) {
-		read_entries(list->values, list->size, sb);
-	}
+    if (list != NULL && list->values != NULL)
+    {
+        read_entries(list->values, list->size, sb);
+    }
 
-	char *json = sb->str;
+    char *json = sb->str;
 
-	free(sb);
-	sb = NULL;
+    free(sb);
+    sb = NULL;
 
-	return json;
+    return json;
 }
 
 /** @} */
