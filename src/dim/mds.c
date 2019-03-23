@@ -324,7 +324,6 @@ Request *mds_service_action_data_request(Context *ctx, DataReqMode data_req_mode
 			apdu->choice = PRST_CHOSEN;
 
 			data_apdu->message.choice = ROIV_CMIP_CONFIRMED_ACTION_CHOSEN;
-
 			data_apdu->message.u.roiv_cmipConfirmedAction.obj_handle = 0;
 			data_apdu->message.u.roiv_cmipConfirmedAction.action_type
 			= MDC_ACT_DATA_REQUEST;

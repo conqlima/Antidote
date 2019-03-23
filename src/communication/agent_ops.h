@@ -29,8 +29,8 @@
  * \date May 31, 2011
  */
 
-#ifndef AGENT_H_
-#define AGENT_H_
+#ifndef AGENTOPS_H_
+#define AGENTOPS_H_
 
 #include "fsm.h"
 
@@ -46,5 +46,7 @@ void communication_agent_roiv_action_respond_tx(FSMContext *ctx, fsm_events evt,
 void communication_agent_roiv_get_mds_tx(FSMContext *ctx, fsm_events evt, FSMEventData *data);
 void communication_agent_send_event_tx(FSMContext *ctx, fsm_events evt, FSMEventData *data);
 void association_agent_mds(FSMContext *ctx, fsm_events evt, FSMEventData *data);
+int communication_manager_initiated_mode_start(int nodeNumber);
+DataReqMode communication_manager_initiated_mode();
 
 #endif

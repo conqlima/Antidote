@@ -148,6 +148,9 @@ void req_association_release(Context *ctx);
 
 int communication_force_disconnect(Context *ctx);
 
+//double get_manager_initiated_mode(void);
+
+
 /**
  * @}
  */

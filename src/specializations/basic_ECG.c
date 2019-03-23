@@ -50,7 +50,7 @@ static ConfigObjectList *basic_ECG_get_config_ID0258()
     attr_list1->value[3].attribute_value.length = 4;
     free(bsw);
     bsw = byte_stream_writer_instance(4);
-    write_intu32(bsw, 0x00000640); // se 8000 = 1s então 0.2s é igual a 1600, (em hex é 0x640). See page 32 of Optimized exchange protoco 2016
+    write_intu32(bsw, 0x00000050); // time * 125 microsegundos, 10ms é igual a 80*125microsec. = 10 mili
     attr_list1->value[3].attribute_value.value = bsw->buffer;
 
     attr_list1->value[4].attribute_id = MDC_ATTR_ATTRIBUTE_VAL_MAP;
@@ -69,7 +69,7 @@ static ConfigObjectList *basic_ECG_get_config_ID0258()
     attr_list1->value[5].attribute_value.length = 12;
     free(bsw);
     bsw = byte_stream_writer_instance(12);
-    write_intu32(bsw, 0x00fffffe); // lower-absolute-value, -2mV
+    write_intu32(bsw, 0xfffffffe); // lower-absolute-value, -2mV
     write_intu32(bsw, 0x00000002); // upper-absolute-value, 2mV
     write_intu16(bsw, 0x0000); //0, lower-scaled-value, see page 151-152 Optimized exchange protoco, 2016
     write_intu16(bsw, 0x0320); //800, upper-scaled-value, see page 151-152 Optimized exchange protoco, 2016

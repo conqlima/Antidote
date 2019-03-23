@@ -69,8 +69,8 @@
 /**Commented for Castalia, uncommnet if you wish see
 the log in terminal.
 */
-//#define DEBUG(...)   LOG("DEBUG   ", __VA_ARGS__)
-#define DEBUG(...)
+#define DEBUG(...)   LOG("DEBUG   ", __VA_ARGS__)
+//#define DEBUG(...)
 
 /**
  * @brief Logs a error level message at the log output.
@@ -87,8 +87,8 @@ the log in terminal.
 /**Commented for Castalia, uncommnet if you wish see
 the log in terminal.
 */
-//#define WARNING(...) LOG("WARNING ", __VA_ARGS__)
-#define WARNING(...)
+#define WARNING(...) LOG("WARNING ", __VA_ARGS__)
+//#define WARNING(...)
 
 /**
  * @brief Logs a information level message at the log output.

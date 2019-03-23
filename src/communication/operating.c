@@ -248,6 +248,10 @@ static void communication_agent_process_roiv(Context *ctx, APDU *apdu)
 			data.received_apdu = apdu;
 			communication_fire_evt(ctx, fsm_evt_rx_roiv_get, &data);
 			break;
+		case ROIV_CMIP_CONFIRMED_ACTION_CHOSEN:
+			data.received_apdu = apdu;
+			communication_fire_evt(ctx, fsm_evt_rx_roiv_confirmed_action, &data);
+			break;
 		default:
 			communication_fire_evt(ctx, fsm_evt_rx_roiv, NULL);
 			break;

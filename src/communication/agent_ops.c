@@ -29,16 +29,27 @@
  * \date May 31, 2011
  */
 
+#include "src/asn1/phd_types.h"
 #include "fsm.h"
 #include "communication.h"
 #include "communication/service.h"
 #include "communication/stdconfigurations.h"
 #include "communication/parser/encoder_ASN1.h"
+#include "communication/parser/decoder_ASN1.h"
 #include "src/communication/parser/struct_cleaner.h"
 #include "src/dim/mds.h"
 #include "src/util/log.h"
 #include "src/agent_p.h"
 #include <string.h>
+#include <stdbool.h>
+
+static DataReqMode req_mode = 0;
+static intu32 singleMeasurement = 0;
+static intu32 timeLimit = 0;
+static intu32 noTimeLimit = 0;
+static int start[6] = {0};
+
+
 
 /**
  * Answer to unexpected AARQ (Agent)
@@ -62,6 +73,157 @@ void communication_agent_aare_rejected_permanent_tx(FSMContext *ctx, fsm_events 
 void communication_agent_roer_no_tx(FSMContext *ctx, fsm_events evt, FSMEventData *data)
 {
 	/* TODO */
+}
+
+/**
+ * Respond to confirmed ROIV Action request (Agent)
+ *
+ * @param ctx state machine context
+ * @param evt state machine event
+ * @param data state machine event data
+ */
+void communication_agent_roiv_confirmed_action_respond_tx(FSMContext *ctx, fsm_events evt, FSMEventData *data)
+{
+	int nodeNumber = (ctx->id.plugin+1)/2;
+	/* TODO HERE ROBSON */
+	//ROIV_CMIP_EVENT_REPORT_CHOSEN = 0x0100,
+	//ROIV_CMIP_CONFIRMED_EVENT_REPORT_CHOSEN = 0x0101,
+	//ROIV_CMIP_GET_CHOSEN = 0x0103,
+	//ROIV_CMIP_SET_CHOSEN = 0x0104,
+	//ROIV_CMIP_CONFIRMED_SET_CHOSEN = 0x0105,
+	//ROIV_CMIP_ACTION_CHOSEN = 0x0106,
+	//ROIV_CMIP_CONFIRMED_ACTION_CHOSEN = 0x0107,
+	//DATA_apdu *rx = encode_get_data_apdu(&data->received_apdu->u.prst);
+	//switch(rx->message.choice){
+		//case ROIV_CMIP_CONFIRMED_ACTION_CHOSEN:
+		//communication_agent_roiv_confirmed_action_respond_tx(ctx, evt, data);
+		//break;
+		//default: return;
+		//break;
+	//}
+	/* TODO HERE ROBSON */
+	//#define MDC_ACT_SEG_CLR 3084 /* */
+	//#define MDC_ACT_SEG_GET_INFO 3085 /* */
+	//#define MDC_ACT_SET_TIME 3095 /* */
+	//#define MDC_ACT_DATA_REQUEST 3099 /* */
+	//#define MDC_ACT_SEG_TRIG_XFER 3100 /* */
+	DATA_apdu *rx = encode_get_data_apdu(&data->received_apdu->u.prst);
+	switch(rx->message.u.roiv_cmipConfirmedAction.action_type){
+		case MDC_ACT_DATA_REQUEST:{
+			intu8 *buffer = rx->message.u.roiv_cmipConfirmedAction.action_info_args.value;
+			intu16 length = rx->message.u.roiv_cmipConfirmedAction.action_info_args.length;
+			ByteStreamReader *stream = byte_stream_reader_instance(buffer, length);
+			DataRequest *request = (DataRequest *) calloc(1,sizeof(DataRequest));
+			int error = 0;
+			decode_datarequest(stream, request, &error);
+			if (request->data_req_mode & DATA_REQ_START_STOP)
+			{
+				start[nodeNumber] = 1;
+				req_mode = request->data_req_mode;
+				if (request->data_req_mode & DATA_REQ_SUPP_MODE_SINGLE_RSP)
+				{
+					singleMeasurement = 1;
+				}
+				else if (request->data_req_mode & DATA_REQ_SUPP_MODE_TIME_PERIOD)
+				{
+					timeLimit = 1;
+				}
+				else if (request->data_req_mode & DATA_REQ_SUPP_MODE_TIME_NO_LIMIT)
+				{
+					noTimeLimit = 1;
+				}
+				APDU *apdu = (APDU *)calloc(1, sizeof(APDU));
+				DATA_apdu *data_apdu = (DATA_apdu *) calloc(1, sizeof(DATA_apdu));
+
+				if (apdu != NULL && data_apdu != NULL) 
+				{
+					apdu->choice = PRST_CHOSEN;
+				}
+				
+				//observationsscan
+				PRST_apdu prst;
+				ConfigId spec = agent_configuration(nodeNumber)->config;
+				struct StdConfiguration *cfg =
+					std_configurations_get_supported_standard(spec);
+				// TODO support extended configurations too for agent
+			
+				if (!cfg) {
+					DEBUG("No std configuration for %d, bailing out", spec);
+					return;
+				}
+			
+				void *evtreport = agent_configuration(nodeNumber)->event_report_cb();
+				data_apdu = cfg->event_report(evtreport);
+				free(evtreport);
+				
+				data_apdu->message.choice = RORS_CMIP_CONFIRMED_ACTION_CHOSEN;
+				data_apdu->message.u.roiv_cmipConfirmedAction.obj_handle = 0;
+				data_apdu->message.u.roiv_cmipConfirmedAction.action_type
+				= MDC_ACT_DATA_REQUEST;
+				
+				DataResponse *response = (DataResponse *) calloc(1,
+				       sizeof(DataResponse));
+				response->rel_time_stamp = 0;
+				response->data_req_result = 0;
+				response->event_type = MDC_NOTI_SCAN_REPORT_FIXED;
+				response->event_info = data_apdu->message.u.roiv_cmipEventReport.event_info;
+				
+				int length = sizeof(RelativeTime) 
+					+ sizeof(DataReqResult)
+					+ sizeof(OID_Type) + sizeof(intu16)
+					+ response->event_info.length;
+				ByteStreamWriter *writer1 = byte_stream_writer_instance(length);
+				encode_dataresponse(writer1, response);
+
+				free(response);
+				response = NULL;
+				
+				data_apdu->message.u.rors_cmipConfirmedAction.action_info_args.value
+				= writer1->buffer;
+				data_apdu->message.u.rors_cmipConfirmedAction.action_info_args.length
+				= writer1->size;
+				
+				// prst = length + DATA_apdu
+				// take into account data's invoke id and choice
+				data_apdu->message.length
+				= data_apdu->message.u.rors_cmipConfirmedAction.action_info_args.length
+				+ sizeof(intu16)
+				+ sizeof(OID_Type)
+				+ sizeof(ASN1_HANDLE);
+				
+				//response for remote invoke has the same id
+				data_apdu->invoke_id = rx->invoke_id;
+				
+				prst.length = data_apdu->message.length 
+					+ sizeof(intu16) 
+					+ sizeof(DATA_apdu_choice)
+					+ sizeof(InvokeIDType); // 46 + 6 = 52 for oximeter
+				encode_set_data_apdu(&prst, data_apdu);
+				
+				apdu->length = prst.length + sizeof(intu16); // 52 + 2 = 54 for oximeter
+				apdu->u.prst = prst;
+				
+				
+				communication_send_apdu(ctx, apdu);
+				// passes ownership
+				//if (data_apdu->message.choice == ROIV_CMIP_EVENT_REPORT_CHOSEN) {
+					//service_send_unconfirmed_operation_request(ctx, apdu);
+				//} else {
+					// ROIV_CMIP_CONFIRMED_EVENT_REPORT_CHOSEN, presumably
+					//timeout_callback tm = {.func = &communication_timeout, .timeout = 3};
+					//service_send_remote_operation_request(ctx, apdu, tm, NULL);
+				//}
+				free(writer1);
+			}
+			else
+			{
+				start[nodeNumber] = 0;
+			}
+			break;
+		}
+	
+	}
+
 }
 
 /**
@@ -124,17 +286,6 @@ void communication_agent_roiv_confirmed_set_respond_tx(FSMContext *ctx, fsm_even
 	/* TODO */
 }
 
-/**
- * Respond to confirmed ROIV Action request (Agent)
- *
- * @param ctx state machine context
- * @param evt state machine event
- * @param data state machine event data
- */
-void communication_agent_roiv_confirmed_action_respond_tx(FSMContext *ctx, fsm_events evt, FSMEventData *data)
-{
-	/* TODO */
-}
 
 /**
  * Respond to ROIV Action request (Agent)
@@ -290,5 +441,22 @@ void communication_agent_roiv_get_mds_tx(FSMContext *ctx, fsm_events evt, FSMEve
 	// and data_apdu
 	del_apdu(&apdu);
 }
+
+/**
+ * Return the manager-initiated mode
+ *
+ * @return mode
+ */
+DataReqMode communication_manager_initiated_mode(void)
+{
+	return req_mode;
+}
+
+int communication_manager_initiated_mode_start(int nodeNumber)
+{
+	return start[nodeNumber];
+}
+
+
 
 /** @} */

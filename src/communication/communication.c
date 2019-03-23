@@ -53,6 +53,8 @@
 #include "src/communication/parser/decoder_ASN1.h"
 #include "src/communication/parser/struct_cleaner.h"
 #include "src/util/log.h"
+#include "src/communication/agent_ops.h"
+#include "agent_ops.h"
 
 // #define APDU_DUMP
 
@@ -1407,5 +1409,10 @@ void req_association_release(Context *ctx)
 
     communication_fire_evt(ctx, fsm_evt_req_assoc_rel, &evt);
 }
+
+//double get_manager_initiated_mode(void)
+//{
+	//return communication_manager_initiated_mode();
+//}
 
 /** @} */
