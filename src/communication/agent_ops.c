@@ -118,6 +118,9 @@ void communication_agent_roiv_confirmed_action_respond_tx(FSMContext *ctx, fsm_e
 			decode_datarequest(stream, request, &error);
 			if (request->data_req_mode & DATA_REQ_START_STOP)
 			{
+
+				
+
 				start[nodeNumber] = 1;
 				req_mode = request->data_req_mode;
 				if (request->data_req_mode & DATA_REQ_SUPP_MODE_SINGLE_RSP)
@@ -164,7 +167,7 @@ void communication_agent_roiv_confirmed_action_respond_tx(FSMContext *ctx, fsm_e
 				DataResponse *response = (DataResponse *) calloc(1,
 				       sizeof(DataResponse));
 				response->rel_time_stamp = 0;
-				response->data_req_result = 0;
+				response->data_req_result = DATA_REQ_RESULT_NO_ERROR;
 				response->event_type = MDC_NOTI_SCAN_REPORT_FIXED;
 				response->event_info = data_apdu->message.u.roiv_cmipEventReport.event_info;
 				
