@@ -43,10 +43,10 @@
 #include <string.h>
 #include <stdbool.h>
 
-static DataReqMode req_mode = 0;
-static intu32 singleMeasurement = 0;
-static intu32 timeLimit = 0;
-static intu32 noTimeLimit = 0;
+//static DataReqMode req_mode = 0;
+// static intu32 singleMeasurement = 0;
+// static intu32 timeLimit = 0;
+// static intu32 noTimeLimit = 0;
 static int start[6] = {0};
 
 
@@ -111,30 +111,16 @@ void communication_agent_roiv_confirmed_action_respond_tx(FSMContext *ctx, fsm_e
 	switch(rx->message.u.roiv_cmipConfirmedAction.action_type){
 		case MDC_ACT_DATA_REQUEST:{
 			intu8 *buffer = rx->message.u.roiv_cmipConfirmedAction.action_info_args.value;
-			intu16 length = rx->message.u.roiv_cmipConfirmedAction.action_info_args.length;
-			ByteStreamReader *stream = byte_stream_reader_instance(buffer, length);
+			intu16 infolength = rx->message.u.roiv_cmipConfirmedAction.action_info_args.length;
+			ByteStreamReader *stream = byte_stream_reader_instance(buffer, infolength);
 			DataRequest *request = (DataRequest *) calloc(1,sizeof(DataRequest));
 			int error = 0;
 			decode_datarequest(stream, request, &error);
-			if (request->data_req_mode & DATA_REQ_START_STOP)
-			{
-
+			//if (request->data_req_mode & DATA_REQ_START_STOP)
+			//{
+				//start[nodeNumber] = 1;
+				//req_mode = request->data_req_mode;
 				
-
-				start[nodeNumber] = 1;
-				req_mode = request->data_req_mode;
-				if (request->data_req_mode & DATA_REQ_SUPP_MODE_SINGLE_RSP)
-				{
-					singleMeasurement = 1;
-				}
-				else if (request->data_req_mode & DATA_REQ_SUPP_MODE_TIME_PERIOD)
-				{
-					timeLimit = 1;
-				}
-				else if (request->data_req_mode & DATA_REQ_SUPP_MODE_TIME_NO_LIMIT)
-				{
-					noTimeLimit = 1;
-				}
 				APDU *apdu = (APDU *)calloc(1, sizeof(APDU));
 				DATA_apdu *data_apdu = (DATA_apdu *) calloc(1, sizeof(DATA_apdu));
 
@@ -168,8 +154,16 @@ void communication_agent_roiv_confirmed_action_respond_tx(FSMContext *ctx, fsm_e
 				       sizeof(DataResponse));
 				response->rel_time_stamp = 0;
 				response->data_req_result = DATA_REQ_RESULT_NO_ERROR;
-				response->event_type = MDC_NOTI_SCAN_REPORT_FIXED;
-				response->event_info = data_apdu->message.u.roiv_cmipEventReport.event_info;
+				if (request->data_req_mode & DATA_REQ_SUPP_MODE_SINGLE_RSP)				
+				{
+					response->event_type = MDC_NOTI_SCAN_REPORT_FIXED;
+					response->event_info = data_apdu->message.u.roiv_cmipEventReport.event_info;
+				}
+				else
+				{
+					response->event_type = 0;
+					response->event_info.length = 0;
+				}
 				
 				int length = sizeof(RelativeTime) 
 					+ sizeof(DataReqResult)
@@ -217,6 +211,20 @@ void communication_agent_roiv_confirmed_action_respond_tx(FSMContext *ctx, fsm_e
 					//service_send_remote_operation_request(ctx, apdu, tm, NULL);
 				//}
 				free(writer1);
+
+
+				// else if (request->data_req_mode & DATA_REQ_SUPP_MODE_TIME_PERIOD)
+				// {
+				// 	timeLimit = 1;
+				// }
+				// else if (request->data_req_mode & DATA_REQ_SUPP_MODE_TIME_NO_LIMIT)
+				// {
+				// 	noTimeLimit = 1;
+				// }
+			//}
+			if (request->data_req_mode & DATA_REQ_START_STOP)
+			{
+				start[nodeNumber] = 1;
 			}
 			else
 			{
@@ -445,15 +453,15 @@ void communication_agent_roiv_get_mds_tx(FSMContext *ctx, fsm_events evt, FSMEve
 	del_apdu(&apdu);
 }
 
-/**
- * Return the manager-initiated mode
- *
- * @return mode
- */
-DataReqMode communication_manager_initiated_mode(void)
-{
-	return req_mode;
-}
+// /**
+//  * Return the manager-initiated mode
+//  *
+//  * @return mode
+//  */
+// DataReqMode communication_manager_initiated_mode(void)
+// {
+// 	return req_mode;
+// }
 
 int communication_manager_initiated_mode_start(int nodeNumber)
 {
