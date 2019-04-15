@@ -7,6 +7,7 @@ tests/main_test_suite
 *.gcno
 *.pyc
 .libs
+.vscode
 XML_*.xml
 doc/html
 .deps
