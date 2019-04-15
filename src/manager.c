@@ -102,6 +102,7 @@
 #include "src/util/log.h"
 #include "src/util/dateutil.h"
 #include "src/agent.h"
+#include "src/manager.h"
 
 
 /**
@@ -114,8 +115,12 @@ static ManagerListener *manager_listener_list = NULL;
  */
 static int manager_listener_count = 0;
 
+static DataReqMode managerInitiatedMode[6] = {0};
+
 static void manager_handle_transition_evt(Context * ctx, fsm_states previous,
         fsm_states next);
+
+
 
 
 /* ! \mainpage Antidote: IEEE 11073-20601 Implementation This API implements
@@ -150,6 +155,15 @@ int manager_notify_evt_device_disconnected(Context * ctx, const char *addr);
  *
  * @param plugins the configured communication plugins
  */
+
+void setDataReqMode(DataReqMode mode ,int nodeId){
+    managerInitiatedMode[nodeId] = mode;
+}
+
+DataReqMode getDataReqMode(unsigned int nodeId){
+   return managerInitiatedMode[nodeId];
+}
+
 //Modified for Castalia Simulator
 void manager_init(ContextId id, CommunicationPlugin ** plugins)
 {
@@ -689,8 +703,9 @@ Request *manager_request_measurement_data_transmission(ContextId id,
     {
         // thread-safe block - start
 
-        DataReqMode mode = DATA_REQ_START_STOP
-                           | DATA_REQ_SUPP_SCOPE_CLASS | DATA_REQ_SUPP_MODE_SINGLE_RSP;
+        // DataReqMode mode = DATA_REQ_START_STOP
+        //                    | DATA_REQ_SUPP_SCOPE_CLASS | DATA_REQ_SUPP_MODE_SINGLE_RSP;
+        DataReqMode mode = getDataReqMode(id.plugin/2);
         OID_Type class_id = MDC_MOC_VMO_METRIC_NU;
         Request *req = mds_service_action_data_request(ctx, mode, &class_id,
                        NULL, callback);
@@ -1029,5 +1044,7 @@ DataList *manager_get_segment_info_data(ContextId id, int handle)
 
     return list;
 }
+
+
 
 /** @} */
