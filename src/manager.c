@@ -156,7 +156,7 @@ int manager_notify_evt_device_disconnected(Context * ctx, const char *addr);
  * @param plugins the configured communication plugins
  */
 
-void setDataReqMode(DataReqMode mode ,int nodeId){
+void setDataReqMode(DataReqMode mode ,unsigned int nodeId){
     managerInitiatedMode[nodeId] = mode;
 }
 
