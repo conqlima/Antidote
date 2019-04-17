@@ -131,7 +131,7 @@ void manager_request_association_abort(ContextId id);
 
 void manager_set_system_id(const intu8 *system_id, intu16 len);
 
-void setDataReqMode(DataReqMode mode ,int nodeId);
+void setDataReqMode(DataReqMode mode ,unsigned int nodeId);
 DataReqMode getDataReqMode(unsigned int nodeId);
 
 
