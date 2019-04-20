@@ -40,7 +40,7 @@
 #ifndef ENCODER_ASN1_H_
 #define ENCODER_ASN1_H_
 
-#include "src/util/bytelib.h"
+#include "util/bytelib.h"
 
 int encode_segmentdataresult(ByteStreamWriter *stream, SegmentDataResult *pointer);
 int encode_scanreportpervar(ByteStreamWriter *stream, ScanReportPerVar *pointer);

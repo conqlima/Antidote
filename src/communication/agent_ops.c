@@ -165,11 +165,12 @@ void communication_agent_roiv_confirmed_action_respond_tx(FSMContext *ctx, fsm_e
 
 		communication_send_apdu(ctx, apdu);
 		free(writer1);
-		//stop message arrive?
+		//star message
 		if (request->data_req_mode >> 15)
 		{
 			start[nodeNumber] = 1;
 		}
+		//stop message
 		else
 		{
 			start[nodeNumber] = 0;
@@ -401,6 +402,11 @@ void communication_agent_roiv_get_mds_tx(FSMContext *ctx, fsm_events evt, FSMEve
 int getIsTheStartMode(int nodeNumber)
 {
 	return start[nodeNumber];
+}
+
+void setIsTheStartMode(int value, int nodeNumber)
+{
+	start[nodeNumber] = value;
 }
 
 /** @} */

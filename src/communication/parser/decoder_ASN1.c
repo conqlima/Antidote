@@ -893,7 +893,7 @@ void decode_apdu(ByteStreamReader *stream, APDU *pointer, int *error)
 	// APDU_choice choice
 	CHK(pointer->length = read_intu16(stream, error));
 	// intu16 length
-
+	
 	switch (pointer->choice) {
 	case AARQ_CHOSEN:
 		CHK(decode_aarq_apdu(stream, &pointer->u.aarq, error));

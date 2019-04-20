@@ -47,5 +47,7 @@ void communication_agent_roiv_get_mds_tx(FSMContext *ctx, fsm_events evt, FSMEve
 void communication_agent_send_event_tx(FSMContext *ctx, fsm_events evt, FSMEventData *data);
 void association_agent_mds(FSMContext *ctx, fsm_events evt, FSMEventData *data);
 int getIsTheStartMode(int nodeNumber);
+void setIsTheStartMode(int value, int nodeNumber);
+
 
 #endif
