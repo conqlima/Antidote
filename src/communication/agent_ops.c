@@ -399,12 +399,12 @@ void communication_agent_roiv_get_mds_tx(FSMContext *ctx, fsm_events evt, FSMEve
 	del_apdu(&apdu);
 }
 
-int getIsTheStartMode(int nodeNumber)
+int communication_agent_getIsTheStartMode(int nodeNumber)
 {
 	return start[nodeNumber];
 }
 
-void setIsTheStartMode(int value, int nodeNumber)
+void communication_agent_setIsTheStartMode(int value, int nodeNumber)
 {
 	start[nodeNumber] = value;
 }
