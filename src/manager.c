@@ -156,11 +156,11 @@ int manager_notify_evt_device_disconnected(Context * ctx, const char *addr);
  * @param plugins the configured communication plugins
  */
 
-void setDataReqMode(DataReqMode mode ,unsigned int nodeId){
+void manager_setDataReqMode(DataReqMode mode ,unsigned int nodeId){
     managerInitiatedMode[nodeId] = mode;
 }
 
-DataReqMode getDataReqMode(unsigned int nodeId){
+DataReqMode manager_getDataReqMode(unsigned int nodeId){
    return managerInitiatedMode[nodeId];
 }
 
@@ -705,7 +705,7 @@ Request *manager_request_measurement_data_transmission(ContextId id,
 
         // DataReqMode mode = DATA_REQ_START_STOP
         //                    | DATA_REQ_SUPP_SCOPE_CLASS | DATA_REQ_SUPP_MODE_SINGLE_RSP;
-        DataReqMode mode = getDataReqMode(id.plugin/2);
+        DataReqMode mode = manager_getDataReqMode(id.plugin/2);
         OID_Type class_id = MDC_MOC_VMO_METRIC_NU;
         Request *req = mds_service_action_data_request(ctx, mode, &class_id,
                        NULL, callback);
