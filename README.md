@@ -1,7 +1,7 @@
 # Modified Antidote Library
 
 This Antidote Library is modified to work on Castalia Simulator in order to be used in Wireless Body Area Simulation.
-The origianl Antidote library stack can be found at https://github.com/signove/antidote.
+The origianl Antidote library stack can be found at https://github.com/signove/antidote. The agent and manager applications made for Castalia can be found at https://github.com/conqlima/11073PhdApplication.
 
 ## Quick installation
 
@@ -18,4 +18,4 @@ The origianl Antidote library stack can be found at https://github.com/signove/a
      
      `make` 
      
-     `sudo make install`
+     `sudo make install
