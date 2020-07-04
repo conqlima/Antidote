@@ -18,4 +18,4 @@ The origianl Antidote library stack can be found at https://github.com/signove/a
      
      `make` 
      
-     `sudo make install
+     `sudo make install`
